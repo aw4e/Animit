@@ -1,13 +1,9 @@
 Public Class LoginPage
     Private _firebase As FirebaseRealtimeDbClient
     Private _firebaseWarningShown As Boolean
+    Private ReadOnly _dragger As New FormDragger()
 
     Private Sub LoginPage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        NightForm1.Cursor = Cursors.Hand
-        lblBrand.Cursor = Cursors.Hand
-        lblBadge.Cursor = Cursors.Hand
-        lblWelcome.Cursor = Cursors.Hand
-        lblSubtitle.Cursor = Cursors.Hand
         ApplyHeroAlignment()
     End Sub
 
@@ -24,27 +20,17 @@ Public Class LoginPage
     End Sub
 
     Private Sub ApplyHeroAlignment()
-        If NightForm1 Is Nothing OrElse pnlEmailInput Is Nothing Then
-            Return
-        End If
+        If NightForm1 Is Nothing OrElse pnlEmailInput Is Nothing Then Return
 
         Dim contentLeft As Integer = pnlEmailInput.Left
         Dim contentWidth As Integer = pnlEmailInput.Width
 
-        lblBrand.AutoSize = False
-        lblBrand.Left = contentLeft
-        lblBrand.Width = contentWidth
-        lblBrand.TextAlign = ContentAlignment.MiddleCenter
-
-        lblWelcome.AutoSize = False
-        lblWelcome.Left = contentLeft
-        lblWelcome.Width = contentWidth
-        lblWelcome.TextAlign = ContentAlignment.MiddleCenter
-
-        lblSubtitle.AutoSize = False
-        lblSubtitle.Left = contentLeft
-        lblSubtitle.Width = contentWidth
-        lblSubtitle.TextAlign = ContentAlignment.MiddleCenter
+        For Each lbl In {lblBrand, lblWelcome, lblSubtitle}
+            lbl.AutoSize = False
+            lbl.Left = contentLeft
+            lbl.Width = contentWidth
+            lbl.TextAlign = ContentAlignment.MiddleCenter
+        Next
 
         lblBadge.AutoSize = False
         lblBadge.Width = 236
@@ -53,27 +39,30 @@ Public Class LoginPage
     End Sub
 
     Private Function EnsureFirebaseClient() As Boolean
-        If _firebase IsNot Nothing Then
-            Return True
-        End If
-
         Dim errorMessage As String = Nothing
-        If FirebaseRealtimeDbClient.TryGetSharedClient(_firebase, errorMessage) Then
-            Return True
-        End If
-
+        If FirebaseRealtimeDbClient.TryGetSharedClient(_firebase, errorMessage) Then Return True
         If Not _firebaseWarningShown Then
             _firebaseWarningShown = True
-            MessageBox.Show($"{errorMessage}{Environment.NewLine}{Environment.NewLine}PowerShell:{Environment.NewLine}$env:ANIMIT_FIREBASE_DB_KEY='ISI_KEY_FIREBASE_KAMU'", "Konfigurasi Firebase", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show($"{errorMessage}{vbCrLf}{vbCrLf}PowerShell:{vbCrLf}$env:ANIMIT_FIREBASE_DB_KEY='ISI_KEY_FIREBASE_KAMU'",
+                            "Konfigurasi Firebase", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
-
         Return False
     End Function
 
-    Private Sub StartSimpleDrag(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown, lblBrand.MouseDown, lblBadge.MouseDown, lblWelcome.MouseDown, lblSubtitle.MouseDown
-        WindowDragHelper.BeginWindowDrag(Me, e)
+    ' --- Drag ---
+    Private Sub Drag_MouseDown(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown, lblBrand.MouseDown, lblBadge.MouseDown, lblWelcome.MouseDown, lblSubtitle.MouseDown
+        _dragger.StartDrag(Me, NightForm1, e)
     End Sub
 
+    Private Sub Drag_MouseMove(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseMove
+        _dragger.UpdateDrag(Me)
+    End Sub
+
+    Private Sub Drag_MouseUp(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseUp
+        _dragger.StopDrag(NightForm1)
+    End Sub
+
+    ' --- Actions ---
     Private Async Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
         Dim credential As String = txtEmail.Text.Trim()
         Dim password As String = txtPass.Text
@@ -83,29 +72,25 @@ Public Class LoginPage
             Return
         End If
 
-        If Not EnsureFirebaseClient() Then
-            Return
-        End If
+        If Not EnsureFirebaseClient() Then Return
 
         btnLogin.Enabled = False
-
         Try
-            Dim authResult As FirebaseAuthResult = Await _firebase.AuthenticateAsync(credential, password)
-            If authResult Is Nothing Then
+            Dim result As FirebaseAuthResult = Await _firebase.AuthenticateAsync(credential, password)
+            If result Is Nothing Then
                 MessageBox.Show("Login gagal. Cek lagi username/email dan password.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
 
-            MessageBox.Show($"Login berhasil. Selamat datang, {authResult.Username}.", "Login Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Dim mainPage As New MainPage() With {
-                .CurrentUsername = authResult.Username,
-                .CurrentUserId = authResult.UserId,
-                .CurrentUserEmail = authResult.Email
+                .CurrentUsername = result.Username,
+                .CurrentUserId = result.UserId,
+                .CurrentUserEmail = result.Email
             }
             mainPage.Show()
             Hide()
         Catch ex As Exception
-            MessageBox.Show($"Gagal login ke Firebase: {ex.Message}", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show($"Gagal login: {ex.Message}", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
             btnLogin.Enabled = True
         End Try

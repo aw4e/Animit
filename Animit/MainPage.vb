@@ -18,7 +18,6 @@ Public Class MainPage
     Private ReadOnly _serverChoices As New List(Of ServerChoice)
     Private ReadOnly _localChatMessages As New List(Of FirebaseChatMessagePreview)
     Private ReadOnly _animeThumbnailCache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-    Private ReadOnly _thumbnailCacheLock As New Object()
     Private _firebase As FirebaseRealtimeDbClient
     Private _firebaseWarningShown As Boolean
     Private _activeNav As DashboardNav = DashboardNav.Browse
@@ -45,17 +44,15 @@ Public Class MainPage
     Private _watchPlayerOriginalPadding As Padding
     Private _episodeRowStartIndex As Integer
     Private _episodeRowPageSize As Integer = 1
-    Private _isDraggingWindow As Boolean
-    Private _dragStartCursor As Point
-    Private _dragStartForm As Point
     Private _isManualVideoFullscreen As Boolean
+    Private ReadOnly _dragger As New FormDragger()
 
-    Private Const EpisodeCardDefaultHeight As Integer = 176
-    Private Const EpisodePosterTop As Integer = 10
-    Private Const EpisodePosterLeft As Integer = 10
-    Private Const EpisodePosterHeight As Integer = 116
-    Private Const EpisodeTitleTop As Integer = 130
-    Private Const EpisodeMetaTop As Integer = 154
+    Private Const CardWidth As Integer = 158
+    Private Const CardHeight As Integer = 250
+    Private Const PosterHeight As Integer = 198
+    Private Const TitleTop As Integer = 205
+    Private Const MetaTop As Integer = 229
+    Private Const TextPadX As Integer = 8
     Private Const FeedFetchMaxPages As Integer = 12
     Private Const SearchFetchMaxPages As Integer = 4
 
@@ -161,7 +158,7 @@ Public Class MainPage
 
         ApplyRoundedCorners()
 
-        Dim calculatedPageSize As Integer = CalculateEpisodeRowPageSize()
+        Dim calculatedPageSize As Integer = GetEpisodeTargetCount()
         If _episodeRowPageSize <> calculatedPageSize Then
             _episodeRowPageSize = calculatedPageSize
             If _dashboardItems.Count > 0 Then
@@ -293,51 +290,16 @@ Public Class MainPage
         AddRoundedCorners(pnlChatInput, 8)
     End Sub
 
-    Private Sub StartSimpleDrag(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown
-        If e.Button <> MouseButtons.Left Then
-            Return
-        End If
-
-        If e.Y > 92 Then
-            Return
-        End If
-
-        _isDraggingWindow = True
-        _dragStartCursor = Cursor.Position
-        _dragStartForm = Location
-        NightForm1.Capture = True
+    Private Sub NightForm1_MouseDown(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown
+        If e.Y <= 92 Then _dragger.StartDrag(Me, NightForm1, e)
     End Sub
 
-    Private Sub ContinueSimpleDrag(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseMove
-        If Not _isDraggingWindow Then
-            Return
-        End If
-
-        Dim cursorPos As Point = Cursor.Position
-        Dim deltaX As Integer = cursorPos.X - _dragStartCursor.X
-        Dim deltaY As Integer = cursorPos.Y - _dragStartCursor.Y
-        Location = New Point(_dragStartForm.X + deltaX, _dragStartForm.Y + deltaY)
+    Private Sub NightForm1_MouseMove(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseMove
+        _dragger.UpdateDrag(Me)
     End Sub
 
-    Private Sub StopSimpleDrag(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseUp
-        EndSimpleDrag()
-    End Sub
-
-    Private Sub StopSimpleDragOnCaptureLost(sender As Object, e As EventArgs) Handles NightForm1.MouseCaptureChanged
-        If Not NightForm1.Capture Then
-            _isDraggingWindow = False
-        End If
-    End Sub
-
-    Private Sub EndSimpleDrag()
-        If Not _isDraggingWindow Then
-            Return
-        End If
-
-        _isDraggingWindow = False
-        If NightForm1.Capture Then
-            NightForm1.Capture = False
-        End If
+    Private Sub NightForm1_MouseUp(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseUp
+        _dragger.StopDrag(NightForm1)
     End Sub
 
     Private Sub MainPage_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
@@ -447,7 +409,7 @@ Public Class MainPage
             _dashboardItems.Clear()
             _dashboardItems.AddRange(items)
             _episodeRowStartIndex = 0
-            _episodeRowPageSize = CalculateEpisodeRowPageSize()
+            _episodeRowPageSize = GetEpisodeTargetCount()
             Await EnsureCurrentPageThumbnailsAsync()
             _featuredItem = _dashboardItems.FirstOrDefault()
 
@@ -507,10 +469,6 @@ Public Class MainPage
         LoadPictureAsync(picFeaturedBackdrop, item.Thumbnail)
     End Sub
 
-    Private Function CalculateEpisodeRowPageSize() As Integer
-        Return GetEpisodeTargetCount()
-    End Function
-
     Private Function GetEpisodeTargetCount() As Integer
         Dim width As Integer = Math.Max(1, flpEpisodeRow.ClientSize.Width)
 
@@ -539,7 +497,7 @@ Public Class MainPage
             Return
         End If
 
-        _episodeRowPageSize = CalculateEpisodeRowPageSize()
+        _episodeRowPageSize = GetEpisodeTargetCount()
         Dim maxStart As Integer = Math.Max(0, _dashboardItems.Count - _episodeRowPageSize)
         _episodeRowStartIndex = Math.Max(0, Math.Min(_episodeRowStartIndex, maxStart))
 
@@ -575,7 +533,7 @@ Public Class MainPage
             Return
         End If
 
-        _episodeRowPageSize = CalculateEpisodeRowPageSize()
+        _episodeRowPageSize = GetEpisodeTargetCount()
         Dim maxStart As Integer = Math.Max(0, _dashboardItems.Count - _episodeRowPageSize)
         _episodeRowStartIndex = Math.Max(0, Math.Min(_episodeRowStartIndex, maxStart))
 
@@ -586,9 +544,7 @@ Public Class MainPage
             End If
 
             Dim cachedThumb As String = Nothing
-            SyncLock _thumbnailCacheLock
-                _animeThumbnailCache.TryGetValue(item.Slug, cachedThumb)
-            End SyncLock
+            _animeThumbnailCache.TryGetValue(item.Slug, cachedThumb)
 
             If Not String.IsNullOrWhiteSpace(cachedThumb) Then
                 item.Thumbnail = cachedThumb
@@ -599,9 +555,7 @@ Public Class MainPage
                 Dim detail As AnimeDetailItem = Await _animeApi.FetchAnimeDetailAsync(item.Slug)
                 Dim detailThumb As String = If(String.IsNullOrWhiteSpace(detail?.Thumbnail), item.Thumbnail, detail.Thumbnail)
                 item.Thumbnail = detailThumb
-                SyncLock _thumbnailCacheLock
-                    _animeThumbnailCache(item.Slug) = detailThumb
-                End SyncLock
+                _animeThumbnailCache(item.Slug) = detailThumb
             Catch ex As Exception
                 Debug.WriteLine($"Thumbnail detail gagal ({item.Slug}): {ex.Message}")
             End Try
@@ -613,7 +567,7 @@ Public Class MainPage
             Return
         End If
 
-        _episodeRowPageSize = CalculateEpisodeRowPageSize()
+        _episodeRowPageSize = GetEpisodeTargetCount()
         If _episodeRowStartIndex <= 0 Then
             Return
         End If
@@ -629,7 +583,7 @@ Public Class MainPage
             Return
         End If
 
-        _episodeRowPageSize = CalculateEpisodeRowPageSize()
+        _episodeRowPageSize = GetEpisodeTargetCount()
         Dim maxStart As Integer = Math.Max(0, _dashboardItems.Count - _episodeRowPageSize)
         If _episodeRowStartIndex >= maxStart Then
             Return
@@ -642,46 +596,41 @@ Public Class MainPage
     End Sub
 
     Private Function CreateDashboardCard(item As AnimeCardItem) As Control
-        Const fixedImageWidth As Integer = 200
-
         Dim card As New Panel With {
-            .BackColor = Color.FromArgb(16, 22, 34),
-            .Size = New Size(fixedImageWidth + (EpisodePosterLeft * 2), EpisodeCardDefaultHeight),
-            .Margin = New Padding(7, 6, 7, 6),
+            .BackColor = Color.FromArgb(14, 19, 30),
+            .Size = New Size(CardWidth, CardHeight),
+            .Margin = New Padding(5, 5, 5, 5),
             .Cursor = Cursors.Hand
         }
 
+        ' Image fills the top portion edge-to-edge
         Dim poster As New PictureBox With {
-            .BackColor = Color.FromArgb(10, 15, 24),
-            .Location = New Point(EpisodePosterLeft, EpisodePosterTop),
-            .Size = New Size(fixedImageWidth, EpisodePosterHeight),
+            .BackColor = Color.FromArgb(9, 13, 22),
+            .Location = New Point(0, 0),
+            .Size = New Size(CardWidth, PosterHeight),
             .SizeMode = PictureBoxSizeMode.Zoom
         }
 
         Dim title As New Label With {
-            .ForeColor = Color.FromArgb(238, 242, 250),
-            .Font = New Font("Segoe UI Semibold", 9.6F, FontStyle.Bold),
-            .Location = New Point(EpisodePosterLeft, EpisodeTitleTop),
-            .Size = New Size(fixedImageWidth, 24),
+            .ForeColor = Color.FromArgb(232, 238, 248),
+            .Font = New Font("Segoe UI Semibold", 9.0F, FontStyle.Bold),
+            .Location = New Point(TextPadX, TitleTop),
+            .Size = New Size(CardWidth - TextPadX * 2, 22),
             .Text = item.Title,
             .AutoEllipsis = True
         }
 
-        Dim metaEpisode As String = If(String.IsNullOrWhiteSpace(item.Episode), "-", item.Episode)
-        Dim metaText As String = $"Episode {metaEpisode}"
-        If Not String.IsNullOrWhiteSpace(item.Score) Then
-            metaText &= $" • Score {item.Score}"
-        End If
-        If Not String.IsNullOrWhiteSpace(item.Type) Then
-            metaText &= $" • {item.Type}"
-        End If
+        Dim metaParts As New List(Of String)
+        metaParts.Add($"Ep {If(String.IsNullOrWhiteSpace(item.Episode), "-", item.Episode)}")
+        If Not String.IsNullOrWhiteSpace(item.Score) Then metaParts.Add(item.Score)
+        If Not String.IsNullOrWhiteSpace(item.Type) Then metaParts.Add(item.Type)
 
         Dim meta As New Label With {
-            .ForeColor = Color.FromArgb(130, 139, 157),
-            .Font = New Font("Segoe UI", 8.5F),
-            .Location = New Point(EpisodePosterLeft, EpisodeMetaTop),
-            .Size = New Size(fixedImageWidth, 16),
-            .Text = metaText,
+            .ForeColor = Color.FromArgb(110, 118, 135),
+            .Font = New Font("Segoe UI", 7.8F),
+            .Location = New Point(TextPadX, MetaTop),
+            .Size = New Size(CardWidth - TextPadX * 2, 14),
+            .Text = String.Join(" · ", metaParts),
             .AutoEllipsis = True
         }
 
@@ -690,8 +639,7 @@ Public Class MainPage
         card.Controls.Add(meta)
 
         LoadPictureAsync(poster, item.Thumbnail)
-
-        AddRoundedCorners(card, 10)
+        AddRoundedCorners(card, 8)
         BindAnimeCardClick(card, item)
         Return card
     End Function
@@ -714,20 +662,10 @@ Public Class MainPage
         Await EnterWatchModeAsync(item)
     End Sub
 
-    Private Async Sub btnFeaturedPlay_Click(sender As Object, e As EventArgs) Handles btnFeaturedPlay.Click
-        If _featuredItem Is Nothing Then
-            Return
+    Private Async Sub FeaturedAction_Click(sender As Object, e As EventArgs) Handles btnFeaturedPlay.Click, btnFeaturedInfo.Click
+        If _featuredItem IsNot Nothing Then
+            Await EnterWatchModeAsync(_featuredItem)
         End If
-
-        Await EnterWatchModeAsync(_featuredItem)
-    End Sub
-
-    Private Async Sub btnFeaturedInfo_Click(sender As Object, e As EventArgs) Handles btnFeaturedInfo.Click
-        If _featuredItem Is Nothing Then
-            Return
-        End If
-
-        Await EnterWatchModeAsync(_featuredItem)
     End Sub
 
     Private Async Function EnterWatchModeAsync(item As AnimeCardItem) As Task
@@ -816,32 +754,32 @@ Public Class MainPage
     Private Function CreateWatchEpisodeCard(episode As EpisodeItem) As Control
         Dim card As New Panel With {
             .BackColor = Color.FromArgb(18, 24, 38),
-            .Size = New Size(210, 86),
-            .Margin = New Padding(8, 8, 8, 8),
+            .Size = New Size(204, 62),
+            .Margin = New Padding(6, 5, 6, 5),
             .Cursor = Cursors.Hand
         }
 
         Dim title As New Label With {
-            .ForeColor = Color.FromArgb(238, 242, 250),
-            .Font = New Font("Segoe UI Semibold", 10.0F, FontStyle.Bold),
-            .Location = New Point(12, 12),
-            .Size = New Size(186, 24),
+            .ForeColor = Color.FromArgb(232, 238, 248),
+            .Font = New Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+            .Location = New Point(10, 8),
+            .Size = New Size(184, 20),
             .Text = If(String.IsNullOrWhiteSpace(episode.Number), "Episode -", $"Episode {episode.Number}"),
             .AutoEllipsis = True
         }
 
         Dim subtitle As New Label With {
-            .ForeColor = Color.FromArgb(130, 139, 157),
-            .Font = New Font("Segoe UI", 9.0F),
-            .Location = New Point(12, 42),
-            .Size = New Size(186, 28),
+            .ForeColor = Color.FromArgb(110, 118, 135),
+            .Font = New Font("Segoe UI", 8.5F),
+            .Location = New Point(10, 32),
+            .Size = New Size(184, 18),
             .Text = If(String.IsNullOrWhiteSpace(episode.EpisodeDate), episode.Title, episode.EpisodeDate),
             .AutoEllipsis = True
         }
 
         card.Controls.Add(title)
         card.Controls.Add(subtitle)
-        AddRoundedCorners(card, 8)
+        AddRoundedCorners(card, 6)
         BindEpisodeSelectorClick(card, episode)
         Return card
     End Function
@@ -969,8 +907,7 @@ Public Class MainPage
         End If
 
         Try
-            Dim playUri As Uri = Nothing
-            If Not Uri.TryCreate(autoplayUrl, UriKind.Absolute, playUri) Then
+            If Not Uri.TryCreate(autoplayUrl, UriKind.Absolute, Nothing) Then
                 StopEmbeddedPlayer()
                 lblWatchHint.Text = "URL autoplay server tidak valid."
                 Return
@@ -978,13 +915,32 @@ Public Class MainPage
 
             picWatchBackdrop.Visible = False
             webEpisodePlayer.Visible = True
-            webEpisodePlayer.Source = playUri
+            ' Wrap the embed URL in our own full-size HTML so it fills the WebView2 viewport.
+            ' Directly loading the URL lets the embed page use its own fixed CSS (e.g. 640x360),
+            ' which leaves empty/black space around the video.
+            webEpisodePlayer.CoreWebView2.NavigateToString(BuildPlayerHtml(autoplayUrl))
             lblWatchHint.Text = $"Memutar otomatis: {choice.Label}"
         Catch ex As Exception
             StopEmbeddedPlayer()
             lblWatchHint.Text = "Gagal autoplay embed. Coba pilih server lain."
             Debug.WriteLine($"Web player error: {ex.Message}")
         End Try
+    End Function
+
+    ' Builds a minimal HTML page that embeds any URL in a full-size iframe.
+    ' The iframe fills 100% width/height, so the video always covers the WebView2 area.
+    Private Shared Function BuildPlayerHtml(embedUrl As String) As String
+        Return "<!DOCTYPE html><html><head>" &
+               "<meta name='viewport' content='width=device-width,initial-scale=1'>" &
+               "<style>" &
+               "*{margin:0;padding:0;box-sizing:border-box}" &
+               "html,body{width:100%;height:100%;background:#000;overflow:hidden}" &
+               "iframe{width:100%;height:100%;border:none;display:block}" &
+               "</style></head><body>" &
+               $"<iframe src='{embedUrl}' allowfullscreen " &
+               "allow='autoplay;encrypted-media;fullscreen;picture-in-picture' " &
+               "referrerpolicy='no-referrer-when-downgrade'></iframe>" &
+               "</body></html>"
     End Function
 
     Private Sub StopEmbeddedPlayer()
@@ -1031,12 +987,11 @@ Public Class MainPage
     End Sub
 
     Private Sub btnFullscreen_Click(sender As Object, e As EventArgs) Handles btnFullscreen.Click
-        If Not _isWebContentFullscreen Then
-            Dim currentSource As String = webEpisodePlayer?.CoreWebView2?.Source
-            If Not webEpisodePlayer.Visible OrElse String.IsNullOrWhiteSpace(currentSource) OrElse currentSource.Equals("about:blank", StringComparison.OrdinalIgnoreCase) Then
-                lblWatchHint.Text = "Putar video dulu, baru fullscreen."
-                Return
-            End If
+        ' webEpisodePlayer.Visible is True only when a video has been loaded,
+        ' so this is a reliable "is a video playing?" check.
+        If Not _isWebContentFullscreen AndAlso Not webEpisodePlayer.Visible Then
+            lblWatchHint.Text = "Putar video dulu, baru fullscreen."
+            Return
         End If
 
         ToggleSimpleFullscreen()

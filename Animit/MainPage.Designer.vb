@@ -38,9 +38,9 @@ Partial Class MainPage
         pnlDashboard = New Panel()
         lblDashboardHint = New NightLabel()
         flpEpisodeRow = New FlowLayoutPanel()
-        lblRowTitle = New NightLabel()
-        btnEpisodePrev = New StableActionButton()
         btnEpisodeNext = New StableActionButton()
+        btnEpisodePrev = New StableActionButton()
+        lblRowTitle = New NightLabel()
         pnlFeatured = New Panel()
         picFeaturedBackdrop = New PictureBox()
         pnlFeaturedOverlay = New Panel()
@@ -84,6 +84,7 @@ Partial Class MainPage
         pnlLiveChat.SuspendLayout()
         pnlChatInput.SuspendLayout()
         pnlWatchPlayer.SuspendLayout()
+        CType(webEpisodePlayer, ComponentModel.ISupportInitialize).BeginInit()
         CType(picWatchBackdrop, ComponentModel.ISupportInitialize).BeginInit()
         pnlWatchOverlay.SuspendLayout()
         SuspendLayout()
@@ -151,12 +152,12 @@ Partial Class MainPage
         lnkSocial.AutoSize = True
         lnkSocial.BackColor = Color.Transparent
         lnkSocial.Cursor = Cursors.Hand
-        lnkSocial.Font = New Font("Segoe UI", 10.0F, FontStyle.Bold)
+        lnkSocial.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lnkSocial.LinkBehavior = LinkBehavior.NeverUnderline
         lnkSocial.LinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
-        lnkSocial.Location = New Point(706, 59)
+        lnkSocial.Location = New Point(233, 61)
         lnkSocial.Name = "lnkSocial"
-        lnkSocial.Size = New Size(45, 19)
+        lnkSocial.Size = New Size(48, 19)
         lnkSocial.TabIndex = 4
         lnkSocial.TabStop = True
         lnkSocial.Text = "Sosial"
@@ -251,54 +252,42 @@ Partial Class MainPage
         ' 
         ' btnSearch
         ' 
-        btnSearch.AutoSize = False
         btnSearch.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnSearch.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
         btnSearch.Cursor = Cursors.Hand
-        btnSearch.Density = MaterialButton.MaterialButtonDensity.Default
-        btnSearch.Depth = 0
+        btnSearch.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnSearch.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnSearch.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnSearch.FlatStyle = FlatStyle.Flat
         btnSearch.Font = New Font("Segoe UI", 9.5F, FontStyle.Bold)
         btnSearch.ForeColor = Color.WhiteSmoke
-        btnSearch.HighEmphasis = True
-        btnSearch.Icon = Nothing
-        btnSearch.IconType = MaterialButton.MaterialIconType.Rebase
         btnSearch.Location = New Point(1116, 50)
         btnSearch.Margin = New Padding(4, 6, 4, 6)
         btnSearch.MinimumSize = New Size(70, 38)
-        btnSearch.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnSearch.Name = "btnSearch"
-        btnSearch.NoAccentTextColor = Color.Empty
         btnSearch.Size = New Size(70, 38)
         btnSearch.TabIndex = 7
         btnSearch.Text = "Cari"
-        btnSearch.Type = MaterialButton.MaterialButtonType.Contained
-        btnSearch.UseAccentColor = False
         btnSearch.UseVisualStyleBackColor = False
         ' 
         ' btnRefresh
         ' 
-        btnRefresh.AutoSize = False
         btnRefresh.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnRefresh.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         btnRefresh.Cursor = Cursors.Hand
-        btnRefresh.Density = MaterialButton.MaterialButtonDensity.Default
-        btnRefresh.Depth = 0
+        btnRefresh.FlatAppearance.BorderColor = Color.FromArgb(CByte(18), CByte(160), CByte(184))
+        btnRefresh.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(26), CByte(168), CByte(192))
+        btnRefresh.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(56), CByte(198), CByte(222))
+        btnRefresh.FlatStyle = FlatStyle.Flat
         btnRefresh.Font = New Font("Segoe UI", 9.5F, FontStyle.Bold)
         btnRefresh.ForeColor = Color.FromArgb(CByte(10), CByte(48), CByte(62))
-        btnRefresh.HighEmphasis = True
-        btnRefresh.Icon = Nothing
-        btnRefresh.IconType = MaterialButton.MaterialIconType.Rebase
         btnRefresh.Location = New Point(1194, 50)
         btnRefresh.Margin = New Padding(4, 6, 4, 6)
         btnRefresh.MinimumSize = New Size(62, 38)
-        btnRefresh.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnRefresh.Name = "btnRefresh"
-        btnRefresh.NoAccentTextColor = Color.Empty
         btnRefresh.Size = New Size(62, 38)
         btnRefresh.TabIndex = 8
         btnRefresh.Text = "↻"
-        btnRefresh.Type = MaterialButton.MaterialButtonType.Contained
-        btnRefresh.UseAccentColor = False
         btnRefresh.UseVisualStyleBackColor = False
         ' 
         ' pnlContentHost
@@ -348,12 +337,51 @@ Partial Class MainPage
         ' flpEpisodeRow
         ' 
         flpEpisodeRow.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-        flpEpisodeRow.AutoScroll = False
         flpEpisodeRow.Location = New Point(12, 396)
         flpEpisodeRow.Name = "flpEpisodeRow"
         flpEpisodeRow.Size = New Size(1198, 192)
         flpEpisodeRow.TabIndex = 2
         flpEpisodeRow.WrapContents = False
+        ' 
+        ' btnEpisodeNext
+        ' 
+        btnEpisodeNext.AutoSizeMode = AutoSizeMode.GrowAndShrink
+        btnEpisodeNext.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
+        btnEpisodeNext.Cursor = Cursors.Hand
+        btnEpisodeNext.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnEpisodeNext.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnEpisodeNext.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnEpisodeNext.FlatStyle = FlatStyle.Flat
+        btnEpisodeNext.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
+        btnEpisodeNext.ForeColor = Color.Gainsboro
+        btnEpisodeNext.Location = New Point(1166, 358)
+        btnEpisodeNext.Margin = New Padding(4, 6, 4, 6)
+        btnEpisodeNext.MinimumSize = New Size(44, 32)
+        btnEpisodeNext.Name = "btnEpisodeNext"
+        btnEpisodeNext.Size = New Size(44, 32)
+        btnEpisodeNext.TabIndex = 5
+        btnEpisodeNext.Text = "▶"
+        btnEpisodeNext.UseVisualStyleBackColor = False
+        ' 
+        ' btnEpisodePrev
+        ' 
+        btnEpisodePrev.AutoSizeMode = AutoSizeMode.GrowAndShrink
+        btnEpisodePrev.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
+        btnEpisodePrev.Cursor = Cursors.Hand
+        btnEpisodePrev.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnEpisodePrev.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnEpisodePrev.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnEpisodePrev.FlatStyle = FlatStyle.Flat
+        btnEpisodePrev.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
+        btnEpisodePrev.ForeColor = Color.Gainsboro
+        btnEpisodePrev.Location = New Point(1114, 358)
+        btnEpisodePrev.Margin = New Padding(4, 6, 4, 6)
+        btnEpisodePrev.MinimumSize = New Size(44, 32)
+        btnEpisodePrev.Name = "btnEpisodePrev"
+        btnEpisodePrev.Size = New Size(44, 32)
+        btnEpisodePrev.TabIndex = 4
+        btnEpisodePrev.Text = "◀"
+        btnEpisodePrev.UseVisualStyleBackColor = False
         ' 
         ' lblRowTitle
         ' 
@@ -366,58 +394,6 @@ Partial Class MainPage
         lblRowTitle.Size = New Size(186, 25)
         lblRowTitle.TabIndex = 1
         lblRowTitle.Text = "Episode Terbaru Live"
-        ' 
-        ' btnEpisodePrev
-        ' 
-        btnEpisodePrev.AutoSize = False
-        btnEpisodePrev.AutoSizeMode = AutoSizeMode.GrowAndShrink
-        btnEpisodePrev.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
-        btnEpisodePrev.Cursor = Cursors.Hand
-        btnEpisodePrev.Density = MaterialButton.MaterialButtonDensity.Default
-        btnEpisodePrev.Depth = 0
-        btnEpisodePrev.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnEpisodePrev.ForeColor = Color.Gainsboro
-        btnEpisodePrev.HighEmphasis = True
-        btnEpisodePrev.Icon = Nothing
-        btnEpisodePrev.IconType = MaterialButton.MaterialIconType.Rebase
-        btnEpisodePrev.Location = New Point(1114, 358)
-        btnEpisodePrev.Margin = New Padding(4, 6, 4, 6)
-        btnEpisodePrev.MinimumSize = New Size(44, 32)
-        btnEpisodePrev.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
-        btnEpisodePrev.Name = "btnEpisodePrev"
-        btnEpisodePrev.NoAccentTextColor = Color.Empty
-        btnEpisodePrev.Size = New Size(44, 32)
-        btnEpisodePrev.TabIndex = 4
-        btnEpisodePrev.Text = "◀"
-        btnEpisodePrev.Type = MaterialButton.MaterialButtonType.Contained
-        btnEpisodePrev.UseAccentColor = False
-        btnEpisodePrev.UseVisualStyleBackColor = False
-        ' 
-        ' btnEpisodeNext
-        ' 
-        btnEpisodeNext.AutoSize = False
-        btnEpisodeNext.AutoSizeMode = AutoSizeMode.GrowAndShrink
-        btnEpisodeNext.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
-        btnEpisodeNext.Cursor = Cursors.Hand
-        btnEpisodeNext.Density = MaterialButton.MaterialButtonDensity.Default
-        btnEpisodeNext.Depth = 0
-        btnEpisodeNext.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnEpisodeNext.ForeColor = Color.Gainsboro
-        btnEpisodeNext.HighEmphasis = True
-        btnEpisodeNext.Icon = Nothing
-        btnEpisodeNext.IconType = MaterialButton.MaterialIconType.Rebase
-        btnEpisodeNext.Location = New Point(1166, 358)
-        btnEpisodeNext.Margin = New Padding(4, 6, 4, 6)
-        btnEpisodeNext.MinimumSize = New Size(44, 32)
-        btnEpisodeNext.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
-        btnEpisodeNext.Name = "btnEpisodeNext"
-        btnEpisodeNext.NoAccentTextColor = Color.Empty
-        btnEpisodeNext.Size = New Size(44, 32)
-        btnEpisodeNext.TabIndex = 5
-        btnEpisodeNext.Text = "▶"
-        btnEpisodeNext.Type = MaterialButton.MaterialButtonType.Contained
-        btnEpisodeNext.UseAccentColor = False
-        btnEpisodeNext.UseVisualStyleBackColor = False
         ' 
         ' pnlFeatured
         ' 
@@ -464,54 +440,42 @@ Partial Class MainPage
         ' 
         ' btnFeaturedInfo
         ' 
-        btnFeaturedInfo.AutoSize = False
         btnFeaturedInfo.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnFeaturedInfo.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
         btnFeaturedInfo.Cursor = Cursors.Hand
-        btnFeaturedInfo.Density = MaterialButton.MaterialButtonDensity.Default
-        btnFeaturedInfo.Depth = 0
+        btnFeaturedInfo.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnFeaturedInfo.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnFeaturedInfo.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnFeaturedInfo.FlatStyle = FlatStyle.Flat
         btnFeaturedInfo.Font = New Font("Segoe UI", 9.5F, FontStyle.Bold)
         btnFeaturedInfo.ForeColor = Color.FromArgb(CByte(230), CByte(235), CByte(246))
-        btnFeaturedInfo.HighEmphasis = True
-        btnFeaturedInfo.Icon = Nothing
-        btnFeaturedInfo.IconType = MaterialButton.MaterialIconType.Rebase
         btnFeaturedInfo.Location = New Point(197, 268)
         btnFeaturedInfo.Margin = New Padding(4, 6, 4, 6)
         btnFeaturedInfo.MinimumSize = New Size(130, 42)
-        btnFeaturedInfo.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnFeaturedInfo.Name = "btnFeaturedInfo"
-        btnFeaturedInfo.NoAccentTextColor = Color.Empty
         btnFeaturedInfo.Size = New Size(130, 42)
         btnFeaturedInfo.TabIndex = 5
         btnFeaturedInfo.Text = "Detail"
-        btnFeaturedInfo.Type = MaterialButton.MaterialButtonType.Contained
-        btnFeaturedInfo.UseAccentColor = False
         btnFeaturedInfo.UseVisualStyleBackColor = False
         ' 
         ' btnFeaturedPlay
         ' 
-        btnFeaturedPlay.AutoSize = False
         btnFeaturedPlay.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnFeaturedPlay.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         btnFeaturedPlay.Cursor = Cursors.Hand
-        btnFeaturedPlay.Density = MaterialButton.MaterialButtonDensity.Default
-        btnFeaturedPlay.Depth = 0
+        btnFeaturedPlay.FlatAppearance.BorderColor = Color.FromArgb(CByte(18), CByte(160), CByte(184))
+        btnFeaturedPlay.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(26), CByte(168), CByte(192))
+        btnFeaturedPlay.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(56), CByte(198), CByte(222))
+        btnFeaturedPlay.FlatStyle = FlatStyle.Flat
         btnFeaturedPlay.Font = New Font("Segoe UI", 9.5F, FontStyle.Bold)
         btnFeaturedPlay.ForeColor = Color.FromArgb(CByte(10), CByte(48), CByte(62))
-        btnFeaturedPlay.HighEmphasis = True
-        btnFeaturedPlay.Icon = Nothing
-        btnFeaturedPlay.IconType = MaterialButton.MaterialIconType.Rebase
         btnFeaturedPlay.Location = New Point(52, 268)
         btnFeaturedPlay.Margin = New Padding(4, 6, 4, 6)
         btnFeaturedPlay.MinimumSize = New Size(130, 42)
-        btnFeaturedPlay.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnFeaturedPlay.Name = "btnFeaturedPlay"
-        btnFeaturedPlay.NoAccentTextColor = Color.Empty
         btnFeaturedPlay.Size = New Size(130, 42)
         btnFeaturedPlay.TabIndex = 4
         btnFeaturedPlay.Text = "▶ Play"
-        btnFeaturedPlay.Type = MaterialButton.MaterialButtonType.Contained
-        btnFeaturedPlay.UseAccentColor = False
         btnFeaturedPlay.UseVisualStyleBackColor = False
         ' 
         ' lblFeaturedDesc
@@ -595,12 +559,10 @@ Partial Class MainPage
         ' flpWatchEpisodes
         ' 
         flpWatchEpisodes.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-        flpWatchEpisodes.AutoScroll = False
         flpWatchEpisodes.Location = New Point(12, 453)
         flpWatchEpisodes.Name = "flpWatchEpisodes"
         flpWatchEpisodes.Size = New Size(832, 135)
         flpWatchEpisodes.TabIndex = 4
-        flpWatchEpisodes.WrapContents = True
         ' 
         ' lblWatchEpisodesTitle
         ' 
@@ -646,28 +608,22 @@ Partial Class MainPage
         ' 
         ' btnSendChat
         ' 
-        btnSendChat.AutoSize = False
         btnSendChat.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnSendChat.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         btnSendChat.Cursor = Cursors.Hand
-        btnSendChat.Density = MaterialButton.MaterialButtonDensity.Default
-        btnSendChat.Depth = 0
+        btnSendChat.FlatAppearance.BorderColor = Color.FromArgb(CByte(18), CByte(160), CByte(184))
+        btnSendChat.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(26), CByte(168), CByte(192))
+        btnSendChat.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(56), CByte(198), CByte(222))
+        btnSendChat.FlatStyle = FlatStyle.Flat
         btnSendChat.Font = New Font("Segoe UI", 8.5F, FontStyle.Bold)
         btnSendChat.ForeColor = Color.FromArgb(CByte(10), CByte(48), CByte(62))
-        btnSendChat.HighEmphasis = True
-        btnSendChat.Icon = Nothing
-        btnSendChat.IconType = MaterialButton.MaterialIconType.Rebase
         btnSendChat.Location = New Point(262, 8)
         btnSendChat.Margin = New Padding(4, 6, 4, 6)
         btnSendChat.MinimumSize = New Size(60, 32)
-        btnSendChat.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnSendChat.Name = "btnSendChat"
-        btnSendChat.NoAccentTextColor = Color.Empty
         btnSendChat.Size = New Size(60, 32)
         btnSendChat.TabIndex = 1
         btnSendChat.Text = "Kirim"
-        btnSendChat.Type = MaterialButton.MaterialButtonType.Contained
-        btnSendChat.UseAccentColor = False
         btnSendChat.UseVisualStyleBackColor = False
         ' 
         ' txtChatInput
@@ -679,7 +635,7 @@ Partial Class MainPage
         txtChatInput.Location = New Point(10, 12)
         txtChatInput.Name = "txtChatInput"
         txtChatInput.PlaceholderText = "Ketik komentar..."
-        txtChatInput.Size = New Size(246, 24)
+        txtChatInput.Size = New Size(246, 25)
         txtChatInput.TabIndex = 0
         ' 
         ' flpLiveChat
@@ -735,10 +691,11 @@ Partial Class MainPage
         ' 
         ' webEpisodePlayer
         ' 
-        webEpisodePlayer.Dock = DockStyle.Fill
-        webEpisodePlayer.Location = New Point(5, 5)
+        webEpisodePlayer.AllowExternalDrop = True
         webEpisodePlayer.CreationProperties = Nothing
         webEpisodePlayer.DefaultBackgroundColor = Color.FromArgb(CByte(10), CByte(15), CByte(24))
+        webEpisodePlayer.Dock = DockStyle.Fill
+        webEpisodePlayer.Location = New Point(5, 5)
         webEpisodePlayer.Name = "webEpisodePlayer"
         webEpisodePlayer.Size = New Size(822, 208)
         webEpisodePlayer.TabIndex = 2
@@ -790,54 +747,42 @@ Partial Class MainPage
         ' 
         ' btnFullscreen
         ' 
-        btnFullscreen.AutoSize = False
         btnFullscreen.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnFullscreen.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
         btnFullscreen.Cursor = Cursors.Hand
-        btnFullscreen.Density = MaterialButton.MaterialButtonDensity.Default
-        btnFullscreen.Depth = 0
-        btnFullscreen.Font = New Font("Segoe UI", 10.0F, FontStyle.Bold)
+        btnFullscreen.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnFullscreen.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnFullscreen.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnFullscreen.FlatStyle = FlatStyle.Flat
+        btnFullscreen.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnFullscreen.ForeColor = Color.Gainsboro
-        btnFullscreen.HighEmphasis = True
-        btnFullscreen.Icon = Nothing
-        btnFullscreen.IconType = MaterialButton.MaterialIconType.Rebase
         btnFullscreen.Location = New Point(618, 14)
         btnFullscreen.Margin = New Padding(4, 6, 4, 6)
         btnFullscreen.MinimumSize = New Size(50, 38)
-        btnFullscreen.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnFullscreen.Name = "btnFullscreen"
-        btnFullscreen.NoAccentTextColor = Color.Empty
         btnFullscreen.Size = New Size(50, 38)
         btnFullscreen.TabIndex = 6
         btnFullscreen.Text = "⛶"
-        btnFullscreen.Type = MaterialButton.MaterialButtonType.Contained
-        btnFullscreen.UseAccentColor = False
         btnFullscreen.UseVisualStyleBackColor = False
         ' 
         ' btnWatchExternal
         ' 
-        btnWatchExternal.AutoSize = False
         btnWatchExternal.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnWatchExternal.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         btnWatchExternal.Cursor = Cursors.Hand
-        btnWatchExternal.Density = MaterialButton.MaterialButtonDensity.Default
-        btnWatchExternal.Depth = 0
+        btnWatchExternal.FlatAppearance.BorderColor = Color.FromArgb(CByte(18), CByte(160), CByte(184))
+        btnWatchExternal.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(26), CByte(168), CByte(192))
+        btnWatchExternal.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(56), CByte(198), CByte(222))
+        btnWatchExternal.FlatStyle = FlatStyle.Flat
         btnWatchExternal.Font = New Font("Segoe UI", 9F, FontStyle.Bold)
         btnWatchExternal.ForeColor = Color.FromArgb(CByte(10), CByte(48), CByte(62))
-        btnWatchExternal.HighEmphasis = True
-        btnWatchExternal.Icon = Nothing
-        btnWatchExternal.IconType = MaterialButton.MaterialIconType.Rebase
         btnWatchExternal.Location = New Point(676, 14)
         btnWatchExternal.Margin = New Padding(4, 6, 4, 6)
         btnWatchExternal.MinimumSize = New Size(150, 38)
-        btnWatchExternal.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnWatchExternal.Name = "btnWatchExternal"
-        btnWatchExternal.NoAccentTextColor = Color.Empty
         btnWatchExternal.Size = New Size(150, 38)
         btnWatchExternal.TabIndex = 7
         btnWatchExternal.Text = "Play Ulang"
-        btnWatchExternal.Type = MaterialButton.MaterialButtonType.Contained
-        btnWatchExternal.UseAccentColor = False
         btnWatchExternal.UseVisualStyleBackColor = False
         ' 
         ' lblWatchDesc
@@ -878,28 +823,22 @@ Partial Class MainPage
         ' 
         ' btnBackToBrowse
         ' 
-        btnBackToBrowse.AutoSize = False
         btnBackToBrowse.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnBackToBrowse.BackColor = Color.FromArgb(CByte(25), CByte(31), CByte(48))
         btnBackToBrowse.Cursor = Cursors.Hand
-        btnBackToBrowse.Density = MaterialButton.MaterialButtonDensity.Default
-        btnBackToBrowse.Depth = 0
+        btnBackToBrowse.FlatAppearance.BorderColor = Color.FromArgb(CByte(0), CByte(5), CByte(22))
+        btnBackToBrowse.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(7), CByte(13), CByte(30))
+        btnBackToBrowse.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(37), CByte(43), CByte(60))
+        btnBackToBrowse.FlatStyle = FlatStyle.Flat
         btnBackToBrowse.Font = New Font("Segoe UI", 9F, FontStyle.Bold)
         btnBackToBrowse.ForeColor = Color.FromArgb(CByte(230), CByte(235), CByte(246))
-        btnBackToBrowse.HighEmphasis = True
-        btnBackToBrowse.Icon = Nothing
-        btnBackToBrowse.IconType = MaterialButton.MaterialIconType.Rebase
         btnBackToBrowse.Location = New Point(12, 10)
         btnBackToBrowse.Margin = New Padding(4, 6, 4, 6)
         btnBackToBrowse.MinimumSize = New Size(128, 34)
-        btnBackToBrowse.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnBackToBrowse.Name = "btnBackToBrowse"
-        btnBackToBrowse.NoAccentTextColor = Color.Empty
         btnBackToBrowse.Size = New Size(128, 34)
         btnBackToBrowse.TabIndex = 0
         btnBackToBrowse.Text = "← Dashboard"
-        btnBackToBrowse.Type = MaterialButton.MaterialButtonType.Contained
-        btnBackToBrowse.UseAccentColor = False
         btnBackToBrowse.UseVisualStyleBackColor = False
         ' 
         ' tmrLiveChat
@@ -934,6 +873,7 @@ Partial Class MainPage
         pnlChatInput.ResumeLayout(False)
         pnlChatInput.PerformLayout()
         pnlWatchPlayer.ResumeLayout(False)
+        CType(webEpisodePlayer, ComponentModel.ISupportInitialize).EndInit()
         CType(picWatchBackdrop, ComponentModel.ISupportInitialize).EndInit()
         pnlWatchOverlay.ResumeLayout(False)
         pnlWatchOverlay.PerformLayout()

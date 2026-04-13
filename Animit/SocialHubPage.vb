@@ -11,6 +11,7 @@ Public Class SocialHubPage
     Public Property UpdatedUsername As String = String.Empty
 
     Private _firebase As FirebaseRealtimeDbClient
+    Private ReadOnly _dragger As New FormDragger()
 
     Private Async Sub SocialHubPage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         NightForm1.Cursor = Cursors.Hand
@@ -63,8 +64,17 @@ Public Class SocialHubPage
         lblBadge.Left = lblBrand.Right + 8
     End Sub
 
-    Private Sub StartSimpleDrag(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown, lblBrand.MouseDown, lblBadge.MouseDown, lblTitle.MouseDown
-        WindowDragHelper.BeginWindowDrag(Me, e)
+    ' --- Drag ---
+    Private Sub Drag_MouseDown(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown, lblBrand.MouseDown, lblBadge.MouseDown, lblTitle.MouseDown
+        _dragger.StartDrag(Me, NightForm1, e)
+    End Sub
+
+    Private Sub Drag_MouseMove(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseMove
+        _dragger.UpdateDrag(Me)
+    End Sub
+
+    Private Sub Drag_MouseUp(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseUp
+        _dragger.StopDrag(NightForm1)
     End Sub
 
     Private Function EnsureFirebaseClient() As Boolean
