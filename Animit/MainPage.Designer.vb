@@ -132,7 +132,7 @@ Partial Class MainPage
         lblClose.ForeColor = Color.FromArgb(CByte(83), CByte(107), CByte(138))
         lblClose.Location = New Point(1258, 0)
         lblClose.Name = "lblClose"
-        lblClose.Size = New Size(28, 28)
+        lblClose.Size = New Size(23, 21)
         lblClose.TabIndex = 100
         lblClose.Text = "✕"
         ' 
@@ -142,9 +142,9 @@ Partial Class MainPage
         lblBrand.BackColor = Color.Transparent
         lblBrand.Font = New Font("Segoe UI", 18.0F, FontStyle.Bold)
         lblBrand.ForeColor = Color.FromArgb(CByte(83), CByte(231), CByte(248))
-        lblBrand.Location = New Point(23, 14)
+        lblBrand.Location = New Point(48, 22)
         lblBrand.Name = "lblBrand"
-        lblBrand.Size = New Size(130, 41)
+        lblBrand.Size = New Size(103, 32)
         lblBrand.TabIndex = 99
         lblBrand.Text = "ANIMIT"
         ' 
@@ -159,7 +159,7 @@ Partial Class MainPage
         lnkNavBrowse.LinkColor = Color.FromArgb(CByte(93), CByte(228), CByte(245))
         lnkNavBrowse.Location = New Point(157, 31)
         lnkNavBrowse.Name = "lnkNavBrowse"
-        lnkNavBrowse.Size = New Size(68, 23)
+        lnkNavBrowse.Size = New Size(58, 19)
         lnkNavBrowse.TabIndex = 2
         lnkNavBrowse.TabStop = True
         lnkNavBrowse.Text = "Browse"
@@ -176,7 +176,7 @@ Partial Class MainPage
         lnkNavSimulcasts.LinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
         lnkNavSimulcasts.Location = New Point(229, 31)
         lnkNavSimulcasts.Name = "lnkNavSimulcasts"
-        lnkNavSimulcasts.Size = New Size(94, 23)
+        lnkNavSimulcasts.Size = New Size(78, 19)
         lnkNavSimulcasts.TabIndex = 3
         lnkNavSimulcasts.TabStop = True
         lnkNavSimulcasts.Text = "Simulcasts"
@@ -193,7 +193,7 @@ Partial Class MainPage
         lnkNavMovies.LinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
         lnkNavMovies.Location = New Point(327, 31)
         lnkNavMovies.Name = "lnkNavMovies"
-        lnkNavMovies.Size = New Size(66, 23)
+        lnkNavMovies.Size = New Size(57, 19)
         lnkNavMovies.TabIndex = 4
         lnkNavMovies.TabStop = True
         lnkNavMovies.Text = "Movies"
@@ -210,7 +210,7 @@ Partial Class MainPage
         lnkSocial.LinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
         lnkSocial.Location = New Point(399, 31)
         lnkSocial.Name = "lnkSocial"
-        lnkSocial.Size = New Size(56, 23)
+        lnkSocial.Size = New Size(48, 19)
         lnkSocial.TabIndex = 5
         lnkSocial.TabStop = True
         lnkSocial.Text = "Sosial"
@@ -225,40 +225,48 @@ Partial Class MainPage
         lnkLogout.Font = New Font("Segoe UI", 10.0F, FontStyle.Bold)
         lnkLogout.LinkBehavior = LinkBehavior.NeverUnderline
         lnkLogout.LinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
-        lnkLogout.Location = New Point(1140, 32)
+        lnkLogout.Location = New Point(730, 34)
         lnkLogout.Name = "lnkLogout"
-        lnkLogout.Size = New Size(67, 23)
+        lnkLogout.Size = New Size(56, 19)
         lnkLogout.TabIndex = 6
         lnkLogout.TabStop = True
         lnkLogout.Text = "Logout"
         lnkLogout.VisitedLinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
         ' 
         ' pnlProfileAvatar
-        '
+        ' 
         pnlProfileAvatar.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         pnlProfileAvatar.Controls.Add(lblProfileInitial)
         pnlProfileAvatar.Controls.Add(picMainAvatar)
         pnlProfileAvatar.Cursor = Cursors.Hand
         pnlProfileAvatar.EdgeColor = Color.FromArgb(CByte(32), CByte(41), CByte(50))
-        pnlProfileAvatar.Location = New Point(1213, 25)
+        pnlProfileAvatar.Location = New Point(1206, 23)
         pnlProfileAvatar.Name = "pnlProfileAvatar"
         pnlProfileAvatar.Padding = New Padding(5)
         pnlProfileAvatar.Size = New Size(38, 38)
         pnlProfileAvatar.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         pnlProfileAvatar.TabIndex = 101
-
+        ' 
+        ' lblProfileInitial
+        ' 
         lblProfileInitial.Dock = DockStyle.Fill
         lblProfileInitial.Font = New Font("Segoe UI", 13.0F, FontStyle.Bold)
         lblProfileInitial.ForeColor = Color.FromArgb(CByte(8), CByte(36), CByte(50))
+        lblProfileInitial.Location = New Point(5, 5)
         lblProfileInitial.Name = "lblProfileInitial"
+        lblProfileInitial.Size = New Size(28, 28)
         lblProfileInitial.TabIndex = 0
         lblProfileInitial.Text = "?"
         lblProfileInitial.TextAlign = ContentAlignment.MiddleCenter
-
-        picMainAvatar.Dock = DockStyle.Fill
-        picMainAvatar.SizeMode = PictureBoxSizeMode.Zoom
+        ' 
+        ' picMainAvatar
+        ' 
         picMainAvatar.BackColor = Color.Transparent
+        picMainAvatar.Dock = DockStyle.Fill
+        picMainAvatar.Location = New Point(5, 5)
         picMainAvatar.Name = "picMainAvatar"
+        picMainAvatar.Size = New Size(28, 28)
+        picMainAvatar.SizeMode = PictureBoxSizeMode.Zoom
         picMainAvatar.TabIndex = 1
         picMainAvatar.TabStop = False
         picMainAvatar.Visible = False
@@ -269,7 +277,7 @@ Partial Class MainPage
         pnlSearchInput.Controls.Add(lblSearchIcon)
         pnlSearchInput.Controls.Add(txtSearch)
         pnlSearchInput.EdgeColor = Color.FromArgb(CByte(26), CByte(34), CByte(50))
-        pnlSearchInput.Location = New Point(725, 23)
+        pnlSearchInput.Location = New Point(792, 24)
         pnlSearchInput.Name = "pnlSearchInput"
         pnlSearchInput.Padding = New Padding(4)
         pnlSearchInput.Size = New Size(260, 38)
@@ -284,7 +292,7 @@ Partial Class MainPage
         lblSearchIcon.ForeColor = Color.FromArgb(CByte(110), CByte(120), CByte(140))
         lblSearchIcon.Location = New Point(8, 8)
         lblSearchIcon.Name = "lblSearchIcon"
-        lblSearchIcon.Size = New Size(26, 25)
+        lblSearchIcon.Size = New Size(20, 20)
         lblSearchIcon.TabIndex = 1
         lblSearchIcon.Text = "⌕"
         ' 
@@ -297,7 +305,7 @@ Partial Class MainPage
         txtSearch.Location = New Point(34, 8)
         txtSearch.Name = "txtSearch"
         txtSearch.PlaceholderText = "Search anime..."
-        txtSearch.Size = New Size(218, 23)
+        txtSearch.Size = New Size(218, 18)
         txtSearch.TabIndex = 0
         ' 
         ' btnSearch
@@ -311,7 +319,7 @@ Partial Class MainPage
         btnSearch.FlatStyle = FlatStyle.Flat
         btnSearch.Font = New Font("Segoe UI", 9.5F, FontStyle.Bold)
         btnSearch.ForeColor = Color.WhiteSmoke
-        btnSearch.Location = New Point(993, 23)
+        btnSearch.Location = New Point(1060, 24)
         btnSearch.Margin = New Padding(4, 6, 4, 6)
         btnSearch.MinimumSize = New Size(70, 38)
         btnSearch.Name = "btnSearch"
@@ -331,7 +339,7 @@ Partial Class MainPage
         btnRefresh.FlatStyle = FlatStyle.Flat
         btnRefresh.Font = New Font("Segoe UI", 11.0F, FontStyle.Bold)
         btnRefresh.ForeColor = Color.FromArgb(CByte(6), CByte(36), CByte(48))
-        btnRefresh.Location = New Point(1072, 23)
+        btnRefresh.Location = New Point(1139, 24)
         btnRefresh.Margin = New Padding(4, 6, 4, 6)
         btnRefresh.MinimumSize = New Size(58, 38)
         btnRefresh.Name = "btnRefresh"
@@ -366,7 +374,7 @@ Partial Class MainPage
         pnlDashboard.EdgeColor = Color.FromArgb(CByte(4), CByte(7), CByte(14))
         pnlDashboard.Location = New Point(5, 5)
         pnlDashboard.Name = "pnlDashboard"
-        pnlDashboard.Padding = New Padding(5)
+        pnlDashboard.Padding = New Padding(1)
         pnlDashboard.Size = New Size(1222, 623)
         pnlDashboard.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         pnlDashboard.TabIndex = 0
@@ -421,7 +429,7 @@ Partial Class MainPage
         lblFeaturedTag.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
         lblFeaturedTag.Location = New Point(52, 22)
         lblFeaturedTag.Name = "lblFeaturedTag"
-        lblFeaturedTag.Size = New Size(110, 20)
+        lblFeaturedTag.Size = New Size(86, 15)
         lblFeaturedTag.TabIndex = 0
         lblFeaturedTag.Text = "ANIMIT PICKS"
         ' 
@@ -444,7 +452,7 @@ Partial Class MainPage
         lblFeaturedMeta.ForeColor = Color.FromArgb(CByte(84), CByte(234), CByte(255))
         lblFeaturedMeta.Location = New Point(52, 110)
         lblFeaturedMeta.Name = "lblFeaturedMeta"
-        lblFeaturedMeta.Size = New Size(153, 23)
+        lblFeaturedMeta.Size = New Size(126, 19)
         lblFeaturedMeta.TabIndex = 2
         lblFeaturedMeta.Text = "Episode • Ongoing"
         ' 
@@ -505,9 +513,9 @@ Partial Class MainPage
         lblRowTitle.BackColor = Color.Transparent
         lblRowTitle.Font = New Font("Segoe UI Semibold", 13.0F, FontStyle.Bold)
         lblRowTitle.ForeColor = Color.FromArgb(CByte(232), CByte(238), CByte(250))
-        lblRowTitle.Location = New Point(12, 342)
+        lblRowTitle.Location = New Point(8, 338)
         lblRowTitle.Name = "lblRowTitle"
-        lblRowTitle.Size = New Size(217, 30)
+        lblRowTitle.Size = New Size(183, 25)
         lblRowTitle.TabIndex = 1
         lblRowTitle.Text = "Episode Terbaru Live"
         ' 
@@ -674,7 +682,7 @@ Partial Class MainPage
         lblWatchMeta.ForeColor = Color.FromArgb(CByte(84), CByte(234), CByte(255))
         lblWatchMeta.Location = New Point(16, 10)
         lblWatchMeta.Name = "lblWatchMeta"
-        lblWatchMeta.Size = New Size(118, 21)
+        lblWatchMeta.Size = New Size(98, 17)
         lblWatchMeta.TabIndex = 0
         lblWatchMeta.Text = "EPISODE • LIVE"
         ' 
@@ -711,7 +719,7 @@ Partial Class MainPage
         cmbServerQuality.FormattingEnabled = True
         cmbServerQuality.Location = New Point(490, 20)
         cmbServerQuality.Name = "cmbServerQuality"
-        cmbServerQuality.Size = New Size(150, 28)
+        cmbServerQuality.Size = New Size(150, 23)
         cmbServerQuality.TabIndex = 4
         ' 
         ' btnFullscreen
@@ -777,7 +785,7 @@ Partial Class MainPage
         lblLiveChatTitle.ForeColor = Color.FromArgb(CByte(238), CByte(242), CByte(250))
         lblLiveChatTitle.Location = New Point(14, 16)
         lblLiveChatTitle.Name = "lblLiveChatTitle"
-        lblLiveChatTitle.Size = New Size(94, 23)
+        lblLiveChatTitle.Size = New Size(77, 19)
         lblLiveChatTitle.TabIndex = 0
         lblLiveChatTitle.Text = "LIVE CHAT"
         ' 
@@ -825,7 +833,7 @@ Partial Class MainPage
         txtChatInput.Location = New Point(8, 12)
         txtChatInput.Name = "txtChatInput"
         txtChatInput.PlaceholderText = "Ketik komentar..."
-        txtChatInput.Size = New Size(218, 23)
+        txtChatInput.Size = New Size(218, 18)
         txtChatInput.TabIndex = 0
         ' 
         ' btnSendChat
@@ -856,7 +864,7 @@ Partial Class MainPage
         lblWatchEpisodesTitle.ForeColor = Color.FromArgb(CByte(238), CByte(242), CByte(250))
         lblWatchEpisodesTitle.Location = New Point(12, 444)
         lblWatchEpisodesTitle.Name = "lblWatchEpisodesTitle"
-        lblWatchEpisodesTitle.Size = New Size(144, 28)
+        lblWatchEpisodesTitle.Size = New Size(117, 21)
         lblWatchEpisodesTitle.TabIndex = 3
         lblWatchEpisodesTitle.Text = "Daftar Episode"
         ' 
@@ -896,8 +904,8 @@ Partial Class MainPage
         TransparencyKey = Color.Fuchsia
         NightForm1.ResumeLayout(False)
         NightForm1.PerformLayout()
-        CType(picMainAvatar, ComponentModel.ISupportInitialize).EndInit()
         pnlProfileAvatar.ResumeLayout(False)
+        CType(picMainAvatar, ComponentModel.ISupportInitialize).EndInit()
         pnlSearchInput.ResumeLayout(False)
         pnlSearchInput.PerformLayout()
         pnlContentHost.ResumeLayout(False)

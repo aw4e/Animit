@@ -3,6 +3,7 @@ Friend Class AnimeCardItem
     Public Property Slug As String
     Public Property Url As String
     Public Property Thumbnail As String
+    Public Property DetailThumbnail As String
     Public Property Episode As String
     Public Property Type As String
     Public Property Score As String

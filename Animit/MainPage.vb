@@ -140,9 +140,8 @@ Public Class MainPage
         ' ── Header ────────────────────────────────────────────────────────
         lblClose.Left = formW - lblClose.Width - 2
 
-        ' Brand logo — anchored to the left edge of content
+        ' Brand logo — only adjust Left, keep designer Top
         lblBrand.Left = contentLeft
-        lblBrand.Top = 46
 
         ' Nav links — start to the right of brand logo
         Dim navStart As Integer = Math.Max(150, lblBrand.Right + 16)
@@ -151,9 +150,8 @@ Public Class MainPage
         lnkNavMovies.Left = lnkNavSimulcasts.Right + 16
         lnkSocial.Left = lnkNavMovies.Right + 16
 
-        ' Profile avatar — far right of content, vertically centered in header
+        ' Profile avatar — only adjust Left, keep designer Top
         pnlProfileAvatar.Left = contentLeft + contentWidth - pnlProfileAvatar.Width
-        pnlProfileAvatar.Top = 43
 
         ' Refresh + Search buttons — left of avatar
         btnRefresh.Left = pnlProfileAvatar.Left - btnRefresh.Width - 10
@@ -741,27 +739,23 @@ Public Class MainPage
                 Continue For
             End If
 
-            Dim cachedThumb As String = Nothing
-            _animeThumbnailCache.TryGetValue(item.Slug, cachedThumb)
+            ' Cek cache detail thumbnail
+            Dim cachedDetail As String = Nothing
+            _animeThumbnailCache.TryGetValue(item.Slug, cachedDetail)
 
-            If Not String.IsNullOrWhiteSpace(cachedThumb) Then
-                item.Thumbnail = cachedThumb
+            If Not String.IsNullOrWhiteSpace(cachedDetail) Then
+                item.DetailThumbnail = cachedDetail
                 Continue For
             End If
 
-            ' Gunakan thumbnail dari list response jika sudah ada
-            If Not String.IsNullOrWhiteSpace(item.Thumbnail) Then
-                _animeThumbnailCache(item.Slug) = item.Thumbnail
-                Continue For
-            End If
-
-            ' Hanya fetch detail jika list tidak memberi thumbnail
+            ' Fetch thumbnail dari /anime/slug untuk card episode
             Try
                 Dim detail As AnimeDetailItem = Await _animeApi.FetchAnimeDetailAsync(item.Slug)
                 Dim detailThumb As String = If(String.IsNullOrWhiteSpace(detail?.Thumbnail), item.Thumbnail, detail.Thumbnail)
-                item.Thumbnail = detailThumb
+                item.DetailThumbnail = detailThumb
                 _animeThumbnailCache(item.Slug) = detailThumb
             Catch ex As Exception
+                item.DetailThumbnail = item.Thumbnail
                 Debug.WriteLine($"Thumbnail detail gagal ({item.Slug}): {ex.Message}")
             End Try
         Next
@@ -841,7 +835,7 @@ Public Class MainPage
         card.Controls.Add(title)
         card.Controls.Add(meta)
 
-        LoadPictureAsync(poster, item.Thumbnail)
+        LoadPictureAsync(poster, If(String.IsNullOrWhiteSpace(item.DetailThumbnail), item.Thumbnail, item.DetailThumbnail))
         AddRoundedCorners(card, 8)
         BindAnimeCardClick(card, item)
         Return card
