@@ -66,7 +66,7 @@ Public Class SocialHubPage
 
         _sepLeftCard = New Panel With {
             .BackColor = sepColor,
-            .Location = New Point(0, 185),
+            .Location = New Point(0, 148),
             .Size = New Size(panelLeft.Width, 1),
             .TabStop = False
         }
@@ -74,7 +74,7 @@ Public Class SocialHubPage
 
         _sepMidFollow = New Panel With {
             .BackColor = Color.FromArgb(26, 36, 56),
-            .Location = New Point(0, 114),
+            .Location = New Point(0, 96),
             .Size = New Size(panelMiddle.Width, 1),
             .TabStop = False
         }
@@ -82,7 +82,7 @@ Public Class SocialHubPage
 
         _sepChatTop = New Panel With {
             .BackColor = Color.FromArgb(26, 36, 58),
-            .Location = New Point(0, 70),
+            .Location = New Point(0, 59),
             .Size = New Size(panelRight.Width, 1),
             .TabStop = False
         }
@@ -130,14 +130,14 @@ Public Class SocialHubPage
         lblStatus.Width = panelRight.Width - 40
 
         ' Input bar
-        Dim inputTop As Integer = h - 60
+        Dim inputTop As Integer = h - 58
         panelChatInput.Top = inputTop
         panelChatInput.Width = panelRight.Width
         txtMessageBody.Width = panelChatInput.Width - 160
         btnSendMessage.Left = panelChatInput.Width - 148
 
         ' Chat messages
-        panelChatArea.Size = New Size(panelRight.Width, h - 132)
+        panelChatArea.Size = New Size(panelRight.Width, h - 122)
 
         ' Resize separator lines
         If _sepLeftCard IsNot Nothing Then _sepLeftCard.Width = panelLeft.Width
