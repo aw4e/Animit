@@ -60,7 +60,7 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
         Return hash.Substring(0, 24)
     End Function
 
-    Public Async Function AuthenticateAsync(credential As String, plainPassword As String) As Task(Of FirebaseAuthResult)
+    Public Async Function AuthenticateAsync(credential As String, plainPassword As String, currentHwid As String) As Task(Of FirebaseAuthResult)
         Dim users As JsonObject = Await GetUsersObjectAsync()
         If users.Count = 0 Then
             Return Nothing
@@ -86,15 +86,20 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
                 Continue For
             End If
 
-            If String.Equals(userDoc.profile.password_hash, passwordHash, StringComparison.OrdinalIgnoreCase) Then
-                Return New FirebaseAuthResult With {
-                    .UserId = userEntry.Key,
-                    .Username = userDoc.profile.username,
-                    .Email = userDoc.profile.email
-                }
+            If Not String.Equals(userDoc.profile.password_hash, passwordHash, StringComparison.OrdinalIgnoreCase) Then
+                Return Nothing
             End If
 
-            Return Nothing
+            If Not String.IsNullOrWhiteSpace(userDoc.profile.hwid) AndAlso
+               Not String.Equals(userDoc.profile.hwid, currentHwid, StringComparison.OrdinalIgnoreCase) Then
+                Throw New InvalidOperationException("Akun ini tidak terdaftar untuk perangkat ini. Hubungi admin jika ingin ganti perangkat.")
+            End If
+
+            Return New FirebaseAuthResult With {
+                .UserId = userEntry.Key,
+                .Username = userDoc.profile.username,
+                .Email = userDoc.profile.email
+            }
         Next
 
         Return Nothing
@@ -188,6 +193,13 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
         Next
 
         Return Nothing
+    End Function
+
+    Public Async Function UpdateUserAvatarAsync(userId As String, avatarUrl As String) As Task
+        If String.IsNullOrWhiteSpace(userId) Then
+            Throw New InvalidOperationException("User ID tidak valid.")
+        End If
+        Await PutNodeAsync($"users/{userId}/profile/avatar_url", If(avatarUrl, String.Empty).Trim())
     End Function
 
     Public Async Function UpdateUserProfileAsync(userId As String, username As String, bio As String) As Task
@@ -607,6 +619,7 @@ Friend Class FirebaseProfile
     Public Property hwid As String
     Public Property bio As String
     Public Property badges As List(Of String)
+    Public Property avatar_url As String
 End Class
 
 Friend Class FirebaseLimitTracker

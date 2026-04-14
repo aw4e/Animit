@@ -21,7 +21,6 @@ Partial Class RegisterPage
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         NightForm1 = New NightForm()
-        lblClose = New Label()
         lblLoginPrompt = New NightLabel()
         lnkToLogin = New NightLinkLabel()
         pnlSecurity = New System.Windows.Forms.Panel()
@@ -48,6 +47,7 @@ Partial Class RegisterPage
         lblWelcome = New NightLabel()
         lblBadge = New NightLabel()
         lblBrand = New NightLabel()
+        lblClose = New Label()
         NightForm1.SuspendLayout()
         pnlSecurity.SuspendLayout()
         pnlConfirmInput.SuspendLayout()
@@ -84,23 +84,11 @@ Partial Class RegisterPage
         NightForm1.MinimumSize = New Size(100, 42)
         NightForm1.Name = "NightForm1"
         NightForm1.Padding = New Padding(18, 40, 18, 18)
-        NightForm1.Size = New Size(500, 835)
+        NightForm1.Size = New Size(500, 790)
         NightForm1.TabIndex = 0
         NightForm1.Text = "ANIMIT - REGISTER"
         NightForm1.TextAlignment = NightForm.Alignment.Left
         NightForm1.TitleBarTextColor = Color.FromArgb(CByte(83), CByte(107), CByte(138))
-        ' 
-        ' lblClose
-        ' 
-        lblClose.AutoSize = True
-        lblClose.BackColor = Color.Transparent
-        lblClose.Font = New Font("Segoe UI Symbol", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        lblClose.ForeColor = Color.FromArgb(CByte(83), CByte(107), CByte(138))
-        lblClose.Location = New Point(477, 0)
-        lblClose.Name = "lblClose"
-        lblClose.Size = New Size(23, 21)
-        lblClose.TabIndex = 18
-        lblClose.Text = "✕"
         ' 
         ' lblLoginPrompt
         ' 
@@ -108,9 +96,9 @@ Partial Class RegisterPage
         lblLoginPrompt.BackColor = Color.Transparent
         lblLoginPrompt.Font = New Font("Segoe UI Semibold", 10F)
         lblLoginPrompt.ForeColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
-        lblLoginPrompt.Location = New Point(58, 772)
+        lblLoginPrompt.Location = New Point(58, 740)
         lblLoginPrompt.Name = "lblLoginPrompt"
-        lblLoginPrompt.Size = New Size(130, 19)
+        lblLoginPrompt.Size = New Size(162, 23)
         lblLoginPrompt.TabIndex = 17
         lblLoginPrompt.Text = "Sudah punya akun?"
         ' 
@@ -123,9 +111,9 @@ Partial Class RegisterPage
         lnkToLogin.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lnkToLogin.LinkBehavior = LinkBehavior.HoverUnderline
         lnkToLogin.LinkColor = Color.FromArgb(CByte(93), CByte(228), CByte(245))
-        lnkToLogin.Location = New Point(388, 772)
+        lnkToLogin.Location = New Point(388, 740)
         lnkToLogin.Name = "lnkToLogin"
-        lnkToLogin.Size = New Size(54, 19)
+        lnkToLogin.Size = New Size(66, 23)
         lnkToLogin.TabIndex = 16
         lnkToLogin.TabStop = True
         lnkToLogin.Text = "Sign In"
@@ -136,7 +124,7 @@ Partial Class RegisterPage
         pnlSecurity.BackColor = Color.FromArgb(CByte(10), CByte(17), CByte(31))
         pnlSecurity.Controls.Add(lblSecurityText)
         pnlSecurity.Controls.Add(lblSecurityIcon)
-        pnlSecurity.Location = New Point(58, 718)
+        pnlSecurity.Location = New Point(58, 686)
         pnlSecurity.Name = "pnlSecurity"
         pnlSecurity.Size = New Size(384, 40)
         pnlSecurity.TabIndex = 15
@@ -149,7 +137,7 @@ Partial Class RegisterPage
         lblSecurityText.ForeColor = Color.FromArgb(CByte(155), CByte(165), CByte(183))
         lblSecurityText.Location = New Point(105, 10)
         lblSecurityText.Name = "lblSecurityText"
-        lblSecurityText.Size = New Size(159, 15)
+        lblSecurityText.Size = New Size(205, 20)
         lblSecurityText.TabIndex = 1
         lblSecurityText.Text = "Password minimal 8 karakter"
         ' 
@@ -160,34 +148,28 @@ Partial Class RegisterPage
         lblSecurityIcon.ForeColor = Color.FromArgb(CByte(84), CByte(234), CByte(255))
         lblSecurityIcon.Location = New Point(86, 8)
         lblSecurityIcon.Name = "lblSecurityIcon"
-        lblSecurityIcon.Size = New Size(18, 19)
+        lblSecurityIcon.Size = New Size(21, 23)
         lblSecurityIcon.TabIndex = 0
         lblSecurityIcon.Text = "o"
         ' 
         ' btnSignup
         ' 
-        btnSignup.AutoSize = False
         btnSignup.AutoSizeMode = AutoSizeMode.GrowAndShrink
         btnSignup.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
         btnSignup.Cursor = Cursors.Hand
-        btnSignup.Density = MaterialButton.MaterialButtonDensity.Default
-        btnSignup.Depth = 0
+        btnSignup.FlatAppearance.BorderColor = Color.FromArgb(CByte(18), CByte(160), CByte(184))
+        btnSignup.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(26), CByte(168), CByte(192))
+        btnSignup.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(56), CByte(198), CByte(222))
+        btnSignup.FlatStyle = FlatStyle.Flat
         btnSignup.Font = New Font("Segoe UI Semibold", 14F, FontStyle.Bold)
         btnSignup.ForeColor = Color.FromArgb(CByte(10), CByte(48), CByte(62))
-        btnSignup.HighEmphasis = True
-        btnSignup.Icon = Nothing
-        btnSignup.IconType = MaterialButton.MaterialIconType.Rebase
-        btnSignup.Location = New Point(58, 646)
+        btnSignup.Location = New Point(58, 618)
         btnSignup.Margin = New Padding(4, 6, 4, 6)
         btnSignup.MinimumSize = New Size(144, 47)
-        btnSignup.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER
         btnSignup.Name = "btnSignup"
-        btnSignup.NoAccentTextColor = Color.Empty
         btnSignup.Size = New Size(384, 56)
         btnSignup.TabIndex = 14
         btnSignup.Text = "Create Account"
-        btnSignup.Type = MaterialButton.MaterialButtonType.Contained
-        btnSignup.UseAccentColor = False
         btnSignup.UseVisualStyleBackColor = False
         ' 
         ' pnlConfirmInput
@@ -195,7 +177,7 @@ Partial Class RegisterPage
         pnlConfirmInput.BackColor = Color.FromArgb(CByte(19), CByte(24), CByte(37))
         pnlConfirmInput.Controls.Add(txtConfirmReg)
         pnlConfirmInput.Controls.Add(lblConfirmIcon)
-        pnlConfirmInput.Location = New Point(58, 571)
+        pnlConfirmInput.Location = New Point(58, 551)
         pnlConfirmInput.Name = "pnlConfirmInput"
         pnlConfirmInput.Size = New Size(384, 52)
         pnlConfirmInput.TabIndex = 13
@@ -209,7 +191,7 @@ Partial Class RegisterPage
         txtConfirmReg.Location = New Point(44, 14)
         txtConfirmReg.Name = "txtConfirmReg"
         txtConfirmReg.PlaceholderText = "Ulangi password"
-        txtConfirmReg.Size = New Size(327, 20)
+        txtConfirmReg.Size = New Size(327, 25)
         txtConfirmReg.TabIndex = 1
         txtConfirmReg.UseSystemPasswordChar = True
         ' 
@@ -220,7 +202,7 @@ Partial Class RegisterPage
         lblConfirmIcon.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
         lblConfirmIcon.Location = New Point(14, 12)
         lblConfirmIcon.Name = "lblConfirmIcon"
-        lblConfirmIcon.Size = New Size(15, 20)
+        lblConfirmIcon.Size = New Size(20, 25)
         lblConfirmIcon.TabIndex = 0
         lblConfirmIcon.Text = "*"
         ' 
@@ -230,9 +212,9 @@ Partial Class RegisterPage
         lblConfirm.BackColor = Color.Transparent
         lblConfirm.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lblConfirm.ForeColor = Color.FromArgb(CByte(143), CByte(153), CByte(171))
-        lblConfirm.Location = New Point(58, 543)
+        lblConfirm.Location = New Point(58, 523)
         lblConfirm.Name = "lblConfirm"
-        lblConfirm.Size = New Size(155, 19)
+        lblConfirm.Size = New Size(188, 23)
         lblConfirm.TabIndex = 12
         lblConfirm.Text = "CONFIRM PASSWORD"
         ' 
@@ -241,7 +223,7 @@ Partial Class RegisterPage
         pnlPasswordInput.BackColor = Color.FromArgb(CByte(19), CByte(24), CByte(37))
         pnlPasswordInput.Controls.Add(txtPassReg)
         pnlPasswordInput.Controls.Add(lblPasswordIcon)
-        pnlPasswordInput.Location = New Point(58, 484)
+        pnlPasswordInput.Location = New Point(58, 464)
         pnlPasswordInput.Name = "pnlPasswordInput"
         pnlPasswordInput.Size = New Size(384, 52)
         pnlPasswordInput.TabIndex = 11
@@ -255,7 +237,7 @@ Partial Class RegisterPage
         txtPassReg.Location = New Point(44, 14)
         txtPassReg.Name = "txtPassReg"
         txtPassReg.PlaceholderText = "Buat password"
-        txtPassReg.Size = New Size(327, 20)
+        txtPassReg.Size = New Size(327, 25)
         txtPassReg.TabIndex = 1
         txtPassReg.UseSystemPasswordChar = True
         ' 
@@ -266,7 +248,7 @@ Partial Class RegisterPage
         lblPasswordIcon.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
         lblPasswordIcon.Location = New Point(14, 12)
         lblPasswordIcon.Name = "lblPasswordIcon"
-        lblPasswordIcon.Size = New Size(15, 20)
+        lblPasswordIcon.Size = New Size(20, 25)
         lblPasswordIcon.TabIndex = 0
         lblPasswordIcon.Text = "*"
         ' 
@@ -276,9 +258,9 @@ Partial Class RegisterPage
         lblPass.BackColor = Color.Transparent
         lblPass.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lblPass.ForeColor = Color.FromArgb(CByte(143), CByte(153), CByte(171))
-        lblPass.Location = New Point(58, 456)
+        lblPass.Location = New Point(58, 436)
         lblPass.Name = "lblPass"
-        lblPass.Size = New Size(140, 19)
+        lblPass.Size = New Size(171, 23)
         lblPass.TabIndex = 10
         lblPass.Text = "CREATE PASSWORD"
         ' 
@@ -287,7 +269,7 @@ Partial Class RegisterPage
         pnlEmailInput.BackColor = Color.FromArgb(CByte(19), CByte(24), CByte(37))
         pnlEmailInput.Controls.Add(txtEmailReg)
         pnlEmailInput.Controls.Add(lblEmailIcon)
-        pnlEmailInput.Location = New Point(58, 397)
+        pnlEmailInput.Location = New Point(58, 377)
         pnlEmailInput.Name = "pnlEmailInput"
         pnlEmailInput.Size = New Size(384, 52)
         pnlEmailInput.TabIndex = 9
@@ -301,7 +283,7 @@ Partial Class RegisterPage
         txtEmailReg.Location = New Point(44, 14)
         txtEmailReg.Name = "txtEmailReg"
         txtEmailReg.PlaceholderText = "Masukkan email aktif"
-        txtEmailReg.Size = New Size(327, 20)
+        txtEmailReg.Size = New Size(327, 25)
         txtEmailReg.TabIndex = 1
         ' 
         ' lblEmailIcon
@@ -311,7 +293,7 @@ Partial Class RegisterPage
         lblEmailIcon.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
         lblEmailIcon.Location = New Point(14, 12)
         lblEmailIcon.Name = "lblEmailIcon"
-        lblEmailIcon.Size = New Size(23, 20)
+        lblEmailIcon.Size = New Size(30, 25)
         lblEmailIcon.TabIndex = 0
         lblEmailIcon.Text = "@"
         ' 
@@ -321,9 +303,9 @@ Partial Class RegisterPage
         lblEmail.BackColor = Color.Transparent
         lblEmail.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lblEmail.ForeColor = Color.FromArgb(CByte(143), CByte(153), CByte(171))
-        lblEmail.Location = New Point(58, 369)
+        lblEmail.Location = New Point(58, 349)
         lblEmail.Name = "lblEmail"
-        lblEmail.Size = New Size(50, 19)
+        lblEmail.Size = New Size(61, 23)
         lblEmail.TabIndex = 8
         lblEmail.Text = "EMAIL"
         ' 
@@ -332,7 +314,7 @@ Partial Class RegisterPage
         pnlUserInput.BackColor = Color.FromArgb(CByte(19), CByte(24), CByte(37))
         pnlUserInput.Controls.Add(txtUserReg)
         pnlUserInput.Controls.Add(lblUserIcon)
-        pnlUserInput.Location = New Point(58, 310)
+        pnlUserInput.Location = New Point(58, 290)
         pnlUserInput.Name = "pnlUserInput"
         pnlUserInput.Size = New Size(384, 52)
         pnlUserInput.TabIndex = 7
@@ -346,7 +328,7 @@ Partial Class RegisterPage
         txtUserReg.Location = New Point(44, 14)
         txtUserReg.Name = "txtUserReg"
         txtUserReg.PlaceholderText = "Buat username kamu"
-        txtUserReg.Size = New Size(327, 20)
+        txtUserReg.Size = New Size(327, 25)
         txtUserReg.TabIndex = 1
         ' 
         ' lblUserIcon
@@ -356,7 +338,7 @@ Partial Class RegisterPage
         lblUserIcon.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
         lblUserIcon.Location = New Point(14, 12)
         lblUserIcon.Name = "lblUserIcon"
-        lblUserIcon.Size = New Size(17, 20)
+        lblUserIcon.Size = New Size(23, 25)
         lblUserIcon.TabIndex = 0
         lblUserIcon.Text = "u"
         ' 
@@ -366,9 +348,9 @@ Partial Class RegisterPage
         lblUser.BackColor = Color.Transparent
         lblUser.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         lblUser.ForeColor = Color.FromArgb(CByte(143), CByte(153), CByte(171))
-        lblUser.Location = New Point(58, 282)
+        lblUser.Location = New Point(58, 262)
         lblUser.Name = "lblUser"
-        lblUser.Size = New Size(84, 19)
+        lblUser.Size = New Size(102, 23)
         lblUser.TabIndex = 6
         lblUser.Text = "USERNAME"
         ' 
@@ -378,9 +360,9 @@ Partial Class RegisterPage
         lblSubtitle.BackColor = Color.Transparent
         lblSubtitle.Font = New Font("Segoe UI Semibold", 11F)
         lblSubtitle.ForeColor = Color.FromArgb(CByte(130), CByte(139), CByte(157))
-        lblSubtitle.Location = New Point(89, 222)
+        lblSubtitle.Location = New Point(28, 222)
         lblSubtitle.Name = "lblSubtitle"
-        lblSubtitle.Size = New Size(358, 20)
+        lblSubtitle.Size = New Size(451, 25)
         lblSubtitle.TabIndex = 5
         lblSubtitle.Text = "Buat akun untuk lanjut streaming anime favoritmu."
         ' 
@@ -390,9 +372,9 @@ Partial Class RegisterPage
         lblWelcome.BackColor = Color.Transparent
         lblWelcome.Font = New Font("Segoe UI Semibold", 26F, FontStyle.Bold)
         lblWelcome.ForeColor = Color.FromArgb(CByte(238), CByte(242), CByte(250))
-        lblWelcome.Location = New Point(127, 167)
+        lblWelcome.Location = New Point(78, 162)
         lblWelcome.Name = "lblWelcome"
-        lblWelcome.Size = New Size(266, 47)
+        lblWelcome.Size = New Size(338, 60)
         lblWelcome.TabIndex = 4
         lblWelcome.Text = "Buat Akun Baru"
         ' 
@@ -401,7 +383,7 @@ Partial Class RegisterPage
         lblBadge.BackColor = Color.FromArgb(CByte(16), CByte(48), CByte(63))
         lblBadge.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold)
         lblBadge.ForeColor = Color.FromArgb(CByte(84), CByte(234), CByte(255))
-        lblBadge.Location = New Point(146, 127)
+        lblBadge.Location = New Point(138, 112)
         lblBadge.Name = "lblBadge"
         lblBadge.Size = New Size(208, 28)
         lblBadge.TabIndex = 3
@@ -414,20 +396,32 @@ Partial Class RegisterPage
         lblBrand.BackColor = Color.Transparent
         lblBrand.Font = New Font("Segoe UI", 32F, FontStyle.Bold)
         lblBrand.ForeColor = Color.FromArgb(CByte(83), CByte(231), CByte(248))
-        lblBrand.Location = New Point(161, 62)
+        lblBrand.Location = New Point(133, 40)
         lblBrand.Name = "lblBrand"
-        lblBrand.Size = New Size(183, 59)
+        lblBrand.Size = New Size(229, 72)
         lblBrand.TabIndex = 2
         lblBrand.Text = "ANIMIT"
         lblBrand.TextAlign = ContentAlignment.MiddleCenter
         ' 
+        ' lblClose
+        ' 
+        lblClose.AutoSize = True
+        lblClose.BackColor = Color.Transparent
+        lblClose.Font = New Font("Segoe UI Symbol", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        lblClose.ForeColor = Color.FromArgb(CByte(83), CByte(107), CByte(138))
+        lblClose.Location = New Point(472, 0)
+        lblClose.Name = "lblClose"
+        lblClose.Size = New Size(28, 28)
+        lblClose.TabIndex = 18
+        lblClose.Text = "✕"
+        ' 
         ' RegisterPage
         ' 
-        ClientSize = New Size(500, 835)
+        ClientSize = New Size(500, 790)
         Controls.Add(NightForm1)
         FormBorderStyle = FormBorderStyle.None
         MaximumSize = New Size(1920, 1080)
-        MinimumSize = New Size(500, 835)
+        MinimumSize = New Size(460, 700)
         Name = "RegisterPage"
         StartPosition = FormStartPosition.CenterScreen
         TransparencyKey = Color.Fuchsia
@@ -474,5 +468,5 @@ Partial Class RegisterPage
     Friend WithEvents lblSecurityIcon As System.Windows.Forms.Label
     Friend WithEvents lnkToLogin As NightLinkLabel
     Friend WithEvents lblLoginPrompt As NightLabel
-    Friend WithEvents lblClose As System.Windows.Forms.Label
+    Friend WithEvents lblClose As Label
 End Class

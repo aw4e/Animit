@@ -76,7 +76,8 @@ Public Class LoginPage
 
         btnLogin.Enabled = False
         Try
-            Dim result As FirebaseAuthResult = Await _firebase.AuthenticateAsync(credential, password)
+            Dim hwid As String = FirebaseRealtimeDbClient.CreateHardwareId()
+            Dim result As FirebaseAuthResult = Await _firebase.AuthenticateAsync(credential, password, hwid)
             If result Is Nothing Then
                 MessageBox.Show("Login gagal. Cek lagi username/email dan password.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
@@ -89,6 +90,8 @@ Public Class LoginPage
             }
             mainPage.Show()
             Hide()
+        Catch ex As InvalidOperationException
+            MessageBox.Show(ex.Message, "Akses Ditolak", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Catch ex As Exception
             MessageBox.Show($"Gagal login: {ex.Message}", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally

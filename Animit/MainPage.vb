@@ -68,6 +68,10 @@ Public Class MainPage
     <DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)>
     Public Property CurrentUserEmail As String = String.Empty
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: FORM LIFECYCLE — Load, Shown, Resize events
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Async Sub MainPage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         KeyPreview = True
         NightForm1.Cursor = Cursors.Default
@@ -82,11 +86,15 @@ Public Class MainPage
         _watchPlayerOriginalDock = pnlWatchPlayer.Dock
         _watchPlayerOriginalPadding = pnlWatchPlayer.Padding
 
+        AddHandler pnlFeaturedOverlay.Paint, AddressOf PnlFeaturedOverlay_Paint
+
         lblFeaturedTag.Text = $"ANIMIT PICK • {CurrentUsername.ToUpperInvariant()}"
+        UpdateProfileAvatar()
         UpdateNavigationStyle()
         AlignMainLayout()
 
         Await EnterDashboardModeAsync(True)
+        Await LoadMainAvatarAsync()
     End Sub
 
     Private Sub MainPage_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
@@ -101,11 +109,15 @@ Public Class MainPage
         AlignMainLayout()
     End Sub
 
-    Private Sub AlignMainLayout()
-        If NightForm1 Is Nothing Then
-            Return
-        End If
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: RESPONSIVE LAYOUT — positions all controls dynamically
+    ' Called on Load, Shown, and every Resize event
+    ' ═══════════════════════════════════════════════════════════════════════
 
+    Private Sub AlignMainLayout()
+        If NightForm1 Is Nothing Then Return
+
+        ' When a web video requests native fullscreen, the player fills the entire form
         If _isWebContentFullscreen Then
             If pnlWatchPlayer.Parent IsNot NightForm1 Then
                 pnlWatchPlayer.Parent = NightForm1
@@ -120,41 +132,136 @@ Public Class MainPage
         End If
         pnlWatchPlayer.Dock = DockStyle.None
 
+        Dim formW As Integer = NightForm1.ClientSize.Width
+        Dim formH As Integer = NightForm1.ClientSize.Height
         Dim contentLeft As Integer = 24
-        Dim contentWidth As Integer = Math.Max(760, NightForm1.ClientSize.Width - (contentLeft * 2))
+        Dim contentWidth As Integer = Math.Max(680, formW - (contentLeft * 2))
 
-        lblClose.Left = NightForm1.ClientSize.Width - lblClose.Width - 2
+        ' ── Header ────────────────────────────────────────────────────────
+        lblClose.Left = formW - lblClose.Width - 2
 
-        lnkNavBrowse.Left = contentLeft
-        lnkNavSimulcasts.Left = lnkNavBrowse.Right + 18
-        lnkNavMovies.Left = lnkNavSimulcasts.Right + 18
-        lnkSocial.Left = lnkNavMovies.Right + 18
+        ' Brand logo — anchored to the left edge of content
+        lblBrand.Left = contentLeft
+        lblBrand.Top = 46
 
-        btnRefresh.Left = contentLeft + contentWidth - btnRefresh.Width
+        ' Nav links — start to the right of brand logo
+        Dim navStart As Integer = Math.Max(150, lblBrand.Right + 16)
+        lnkNavBrowse.Left = navStart
+        lnkNavSimulcasts.Left = lnkNavBrowse.Right + 16
+        lnkNavMovies.Left = lnkNavSimulcasts.Right + 16
+        lnkSocial.Left = lnkNavMovies.Right + 16
+
+        ' Profile avatar — far right of content, vertically centered in header
+        pnlProfileAvatar.Left = contentLeft + contentWidth - pnlProfileAvatar.Width
+        pnlProfileAvatar.Top = 43
+
+        ' Refresh + Search buttons — left of avatar
+        btnRefresh.Left = pnlProfileAvatar.Left - btnRefresh.Width - 10
         btnSearch.Left = btnRefresh.Left - btnSearch.Width - 8
 
-        Dim minSearchLeft As Integer = lnkSocial.Right + 18
-        Dim searchWidth As Integer = Math.Max(220, btnSearch.Left - minSearchLeft - 8)
-        searchWidth = Math.Min(360, searchWidth)
+        ' Search bar — fills space between nav and search button
+        Dim minSearchLeft As Integer = lnkSocial.Right + 12
+        Dim searchWidth As Integer = Math.Max(180, btnSearch.Left - minSearchLeft - 8)
+        searchWidth = Math.Min(340, searchWidth)
         pnlSearchInput.Left = btnSearch.Left - searchWidth - 8
         pnlSearchInput.Width = searchWidth
-        txtSearch.Width = Math.Max(120, pnlSearchInput.Width - 44)
+        txtSearch.Width = Math.Max(100, pnlSearchInput.Width - 44)
 
-        lnkLogout.Left = pnlSearchInput.Left - lnkLogout.Width - 16
+        ' Logout link — left of the search panel
+        lnkLogout.Left = pnlSearchInput.Left - lnkLogout.Width - 14
 
+        ' ── Content host — area below header ──────────────────────────────
+        Dim headerBottom As Integer = 94
         pnlContentHost.Left = contentLeft
-        pnlContentHost.Top = 98
+        pnlContentHost.Top = headerBottom
         pnlContentHost.Width = contentWidth
-        pnlContentHost.Height = Math.Max(520, NightForm1.ClientSize.Height - pnlContentHost.Top - 4)
+        pnlContentHost.Height = Math.Max(440, formH - headerBottom - 4)
 
-        btnEpisodeNext.Left = pnlDashboard.ClientSize.Width - btnEpisodeNext.Width - 12
+        ' ── Dashboard panel ───────────────────────────────────────────────
+        Dim dashW As Integer = pnlDashboard.ClientSize.Width
+        Dim dashH As Integer = pnlDashboard.ClientSize.Height
+
+        ' Featured hero: adaptive height (~52 % of available, clamped 200-360 px)
+        Dim featuredH As Integer = Math.Max(200, Math.Min(360, CInt(dashH * 0.52)))
+        pnlFeatured.SetBounds(12, 12, dashW - 24, featuredH)
+
+        ' Featured overlay: adaptive width (~42 % of panel, clamped 260-500 px)
+        Dim overlayW As Integer = Math.Max(260, Math.Min(500, CInt(pnlFeatured.Width * 0.42)))
+        pnlFeaturedOverlay.Width = overlayW
+
+        ' Overlay content — top-to-bottom placement
+        Dim ovH As Integer = pnlFeaturedOverlay.Height
+        Dim padL As Integer = Math.Max(20, CInt(overlayW * 0.1))
+
+        lblFeaturedTag.Left = padL
+        lblFeaturedTag.Top = Math.Max(12, CInt(ovH * 0.07))
+        lblFeaturedTag.Width = overlayW - padL - 12
+
+        Dim titleFontSize As Single = If(ovH < 260, 16.0F, If(ovH < 310, 20.0F, 26.0F))
+        If Math.Abs(lblFeaturedTitle.Font.Size - titleFontSize) > 0.1F Then
+            lblFeaturedTitle.Font = New Font("Segoe UI Semibold", titleFontSize, FontStyle.Bold)
+        End If
+        Dim titleTop As Integer = lblFeaturedTag.Bottom + 8
+        Dim titleH As Integer = Math.Max(36, CInt(ovH * 0.2))
+        lblFeaturedTitle.SetBounds(padL, titleTop, overlayW - padL - 12, titleH)
+
+        lblFeaturedMeta.SetBounds(padL, lblFeaturedTitle.Bottom + 6, overlayW - padL - 12, 22)
+
+        Dim btnTop As Integer = ovH - 58
+        Dim descH As Integer = Math.Max(0, btnTop - lblFeaturedMeta.Bottom - 10)
+        lblFeaturedDesc.SetBounds(padL, lblFeaturedMeta.Bottom + 8, overlayW - padL - 12, descH)
+        lblFeaturedDesc.Visible = descH > 18
+
+        btnFeaturedPlay.Left = padL
+        btnFeaturedPlay.Top = btnTop
+        btnFeaturedInfo.Left = btnFeaturedPlay.Right + 12
+        btnFeaturedInfo.Top = btnTop
+
+        ' Episode row — dynamic vertical positioning
+        Dim rowLabelTop As Integer = pnlFeatured.Bottom + 14
+        lblRowTitle.Top = rowLabelTop + 5
+        btnEpisodeNext.Left = dashW - btnEpisodeNext.Width - 12
+        btnEpisodeNext.Top = rowLabelTop
         btnEpisodePrev.Left = btnEpisodeNext.Left - btnEpisodePrev.Width - 8
+        btnEpisodePrev.Top = rowLabelTop
+        Dim rowTop As Integer = rowLabelTop + Math.Max(lblRowTitle.Height, btnEpisodeNext.Height) + 6
+        Dim rowH As Integer = Math.Max(260, dashH - rowTop - 28)
+        flpEpisodeRow.SetBounds(12, rowTop, dashW - 24, rowH)
+        lblDashboardHint.SetBounds(12, dashH - 26, dashW - 24, 22)
 
+        ' ── Watch panel ───────────────────────────────────────────────────
+        Dim watchW As Integer = pnlWatch.ClientSize.Width
+        Dim watchH As Integer = pnlWatch.ClientSize.Height
+
+        ' Live chat width: 26-28 % of panel, clamped 240-360 px
+        Dim chatW As Integer = Math.Max(240, Math.Min(360, CInt(watchW * 0.27)))
+        Dim playerW As Integer = watchW - chatW - 20
+
+        Dim playerTop As Integer = btnBackToBrowse.Bottom + 8
+        Dim epListH As Integer = 130
+        Dim epTitleH As Integer = 26
+        Dim hintH As Integer = 22
+        Dim playerH As Integer = Math.Max(160, watchH - playerTop - epTitleH - epListH - hintH - 22)
+        pnlWatchPlayer.SetBounds(12, playerTop, playerW, playerH)
+
+        pnlLiveChat.SetBounds(playerW + 20, playerTop, chatW, watchH - playerTop - 8)
+
+        Dim epTitleTop As Integer = playerTop + playerH + 10
+        lblWatchEpisodesTitle.SetBounds(12, epTitleTop, playerW, epTitleH)
+        flpWatchEpisodes.SetBounds(12, epTitleTop + epTitleH + 4, playerW, epListH)
+        lblWatchHint.SetBounds(12, watchH - hintH - 4, watchW - chatW - 24, hintH)
+
+        ' Watch overlay controls
         btnWatchExternal.Left = pnlWatchOverlay.Width - btnWatchExternal.Width - 16
         btnFullscreen.Left = btnWatchExternal.Left - btnFullscreen.Width - 8
-        cmbServerQuality.Left = Math.Max(220, btnFullscreen.Left - cmbServerQuality.Width - 10)
-        lblWatchTitle.Width = Math.Max(220, cmbServerQuality.Left - 24)
+        cmbServerQuality.Left = Math.Max(180, btnFullscreen.Left - cmbServerQuality.Width - 10)
+        lblWatchTitle.Width = Math.Max(160, cmbServerQuality.Left - 24)
         lblWatchDesc.Width = pnlWatchOverlay.Width - 32
+
+        ' Live chat internal controls
+        pnlChatInput.SetBounds(10, pnlLiveChat.ClientSize.Height - 58, chatW - 20, 50)
+        flpLiveChat.SetBounds(10, 48, chatW - 20, Math.Max(40, pnlLiveChat.ClientSize.Height - 114))
+        lblLiveChatCounter.Left = chatW - lblLiveChatCounter.Width - 18
 
         ApplyRoundedCorners()
 
@@ -170,6 +277,10 @@ Public Class MainPage
             UpdateEpisodePagerButtons()
         End If
     End Sub
+
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: FULLSCREEN — web-native fullscreen and manual fullscreen toggle
+    ' ═══════════════════════════════════════════════════════════════════════
 
     Private Sub EnterWebFullscreenMode(Optional isManual As Boolean = False)
         If _isWebContentFullscreen Then
@@ -270,7 +381,12 @@ Public Class MainPage
         End If
     End Sub
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: HEADER — visibility, avatar, gradient overlay paint
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Sub SetHeaderVisibility(isVisible As Boolean)
+        lblBrand.Visible = isVisible
         lnkNavBrowse.Visible = isVisible
         lnkNavSimulcasts.Visible = isVisible
         lnkNavMovies.Visible = isVisible
@@ -279,19 +395,87 @@ Public Class MainPage
         pnlSearchInput.Visible = isVisible
         btnSearch.Visible = isVisible
         btnRefresh.Visible = isVisible
+        pnlProfileAvatar.Visible = isVisible
         lblClose.Visible = isVisible
     End Sub
 
     Private Sub ApplyRoundedCorners()
         AddRoundedCorners(pnlSearchInput, 8)
-        AddRoundedCorners(pnlFeatured, 14)
-        AddRoundedCorners(pnlWatchPlayer, 14)
-        AddRoundedCorners(pnlLiveChat, 14)
+        AddRoundedCorners(pnlFeatured, 12)
+        AddRoundedCorners(pnlWatchPlayer, 12)
+        AddRoundedCorners(pnlLiveChat, 12)
         AddRoundedCorners(pnlChatInput, 8)
+        AddRoundedCorners(pnlProfileAvatar, 19)
     End Sub
 
+    Private Sub UpdateProfileAvatar()
+        Dim initial As String = If(String.IsNullOrWhiteSpace(CurrentUsername), "?", CurrentUsername.Substring(0, 1).ToUpperInvariant())
+        lblProfileInitial.Text = initial
+    End Sub
+
+    Private Async Function LoadMainAvatarAsync() As Task
+        If String.IsNullOrWhiteSpace(CurrentUserId) Then Return
+        If Not EnsureFirebaseClient() Then Return
+
+        Try
+            Dim profile As FirebaseProfile = Await _firebase.GetUserProfileAsync(CurrentUserId)
+            Dim url As String = profile?.avatar_url
+            If String.IsNullOrWhiteSpace(url) Then
+                SetMainAvatarImage(CreateMainNoImageBitmap())
+                Return
+            End If
+            Dim imgBytes As Byte() = Await ApiClient.GetByteArrayAsync(url)
+            Dim bmp As Bitmap
+            Using ms As New System.IO.MemoryStream(imgBytes)
+                Using loaded As Image = Image.FromStream(ms)
+                    bmp = New Bitmap(loaded)
+                End Using
+            End Using
+            SetMainAvatarImage(bmp)
+        Catch
+            SetMainAvatarImage(CreateMainNoImageBitmap())
+        End Try
+    End Function
+
+    Private Sub SetMainAvatarImage(img As Image)
+        Dim old As Image = picMainAvatar.Image
+        picMainAvatar.Image = img
+        picMainAvatar.Visible = True
+        lblProfileInitial.Visible = False
+        old?.Dispose()
+    End Sub
+
+    Private Function CreateMainNoImageBitmap() As Bitmap
+        Dim bmp As New Bitmap(28, 28)
+        Using g As Graphics = Graphics.FromImage(bmp)
+            g.SmoothingMode = SmoothingMode.AntiAlias
+            g.Clear(Color.FromArgb(44, 186, 210))
+            Using br As New SolidBrush(Color.FromArgb(8, 56, 76))
+                g.FillEllipse(br, 8, 2, 12, 12)
+                g.FillEllipse(br, 3, 16, 22, 18)
+            End Using
+        End Using
+        Return bmp
+    End Function
+
+    Private Sub PnlFeaturedOverlay_Paint(sender As Object, e As PaintEventArgs)
+        Dim panelW As Integer = pnlFeaturedOverlay.Width
+        Dim panelH As Integer = pnlFeaturedOverlay.Height
+        If panelW <= 0 OrElse panelH <= 0 Then Return
+        Using br As New Drawing2D.LinearGradientBrush(
+            New Point(0, 0), New Point(panelW, 0),
+            Color.FromArgb(255, 8, 12, 20),
+            Color.FromArgb(230, 10, 16, 26))
+            e.Graphics.FillRectangle(br, e.ClipRectangle)
+        End Using
+    End Sub
+
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: WINDOW DRAG & KEYBOARD — drag-to-move, Escape to exit fullscreen
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Sub NightForm1_MouseDown(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown
-        If e.Y <= 92 Then _dragger.StartDrag(Me, NightForm1, e)
+        If e.Y <= 94 Then _dragger.StartDrag(Me, NightForm1, e)
     End Sub
 
     Private Sub NightForm1_MouseMove(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseMove
@@ -309,6 +493,10 @@ Public Class MainPage
         End If
     End Sub
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: NAVIGATION — Browse / Simulcasts / Movies / Sosial nav links
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Async Sub lnkNavBrowse_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles lnkNavBrowse.LinkClicked
         _activeNav = DashboardNav.Browse
         Await EnterDashboardModeAsync(True)
@@ -324,7 +512,7 @@ Public Class MainPage
         Await EnterDashboardModeAsync(True)
     End Sub
 
-    Private Sub lnkSocial_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles lnkSocial.LinkClicked
+    Private Async Sub lnkSocial_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles lnkSocial.LinkClicked
         If String.IsNullOrWhiteSpace(CurrentUserId) Then
             MessageBox.Show("User belum login dengan benar.", "Sosial", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
@@ -339,7 +527,9 @@ Public Class MainPage
             If Not String.IsNullOrWhiteSpace(page.UpdatedUsername) Then
                 CurrentUsername = page.UpdatedUsername
                 lblFeaturedTag.Text = $"ANIMIT PICK • {CurrentUsername.ToUpperInvariant()}"
+                UpdateProfileAvatar()
             End If
+            Await LoadMainAvatarAsync()
         End Using
     End Sub
 
@@ -370,6 +560,10 @@ Public Class MainPage
         link.VisitedLinkColor = link.LinkColor
         link.ActiveLinkColor = activeColor
     End Sub
+
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: DASHBOARD — search, data fetch, featured hero, episode cards
+    ' ═══════════════════════════════════════════════════════════════════════
 
     Private Async Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         Await EnterDashboardModeAsync(False)
@@ -484,7 +678,11 @@ Public Class MainPage
             Return 5
         End If
 
-        Return 4
+        If width >= 720 Then
+            Return 4
+        End If
+
+        Return 3
     End Function
 
     Private Sub RenderDashboardCardsPage()
@@ -551,6 +749,13 @@ Public Class MainPage
                 Continue For
             End If
 
+            ' Gunakan thumbnail dari list response jika sudah ada
+            If Not String.IsNullOrWhiteSpace(item.Thumbnail) Then
+                _animeThumbnailCache(item.Slug) = item.Thumbnail
+                Continue For
+            End If
+
+            ' Hanya fetch detail jika list tidak memberi thumbnail
             Try
                 Dim detail As AnimeDetailItem = Await _animeApi.FetchAnimeDetailAsync(item.Slug)
                 Dim detailThumb As String = If(String.IsNullOrWhiteSpace(detail?.Thumbnail), item.Thumbnail, detail.Thumbnail)
@@ -665,6 +870,10 @@ Public Class MainPage
             Await EnterWatchModeAsync(_featuredItem)
         End If
     End Sub
+
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: WATCH MODE — video player, episode selector, server quality
+    ' ═══════════════════════════════════════════════════════════════════════
 
     Private Async Function EnterWatchModeAsync(item As AnimeCardItem) As Task
         If item Is Nothing Then
@@ -997,6 +1206,10 @@ Public Class MainPage
         Await EnterDashboardModeAsync(False)
     End Sub
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: LIVE CHAT — Firebase realtime chat, local fallback, send/receive
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Function EnsureFirebaseClient() As Boolean
         If _firebase IsNot Nothing Then
             Return True
@@ -1218,6 +1431,10 @@ Public Class MainPage
         Await LoadLiveChatAsync()
     End Sub
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: WEBVIEW2 — embedded Chromium player, fullscreen detection
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Async Function EnsureWebViewReadyAsync() As Task(Of Boolean)
         If webEpisodePlayer Is Nothing OrElse webEpisodePlayer.IsDisposed Then
             Return False
@@ -1392,6 +1609,10 @@ Public Class MainPage
         })
     End Function
 
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: UTILITIES — helper methods, image loading, rounded corners
+    ' ═══════════════════════════════════════════════════════════════════════
+
     Private Shared Function SelectEpisodeToWatch(item As AnimeCardItem, detail As AnimeDetailItem) As EpisodeItem
         If detail Is Nothing OrElse detail.Episodes.Count = 0 Then
             Return Nothing
@@ -1464,6 +1685,10 @@ Public Class MainPage
 
         control.Region = New Region(path)
     End Sub
+
+    ' ═══════════════════════════════════════════════════════════════════════
+    ' SECTION: WINDOW ACTIONS — logout, close button, form closing cleanup
+    ' ═══════════════════════════════════════════════════════════════════════
 
     Private Sub lnkLogout_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles lnkLogout.LinkClicked
         tmrLiveChat.Stop()
