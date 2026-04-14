@@ -219,16 +219,8 @@ Public Class SocialHubPage
             Dim followerCount As Integer = Await _firebase.GetFollowerCountAsync(CurrentUserId)
             Dim followingCount As Integer = Await _firebase.GetFollowingCountAsync(CurrentUserId)
 
-            Dim remaining As Integer = 0
-            Dim limitTotal As Integer = 0
-            If tracker IsNot Nothing Then
-                limitTotal = tracker.daily_limit_minutes
-                remaining = Math.Max(0, limitTotal - tracker.minutes_watched_today)
-            End If
-
-            lblProfileStats.Text = $"Following {followingCount}  ·  Followers {followerCount}  ·  Sisa {remaining}/{limitTotal}m"
+            lblProfileStats.Text = $"Following {followingCount}  ·  Followers {followerCount}"
         Catch
-            ' Stats optional – silent fail
         End Try
     End Function
 
@@ -297,15 +289,12 @@ Public Class SocialHubPage
         End Try
     End Sub
 
-    ' ═══════════════════════════════════════════
-    '  Following
-    ' ═══════════════════════════════════════════
+    ' Following
     Private Async Function RefreshFollowingAsync() As Task
         lbFollowing.Items.Clear()
         Dim follows As List(Of FirebaseFollowEntry) = Await _firebase.GetFollowingAsync(CurrentUserId)
         Dim inboxSenders As List(Of FirebaseFollowEntry) = Await _firebase.GetDmInboxSendersAsync(CurrentUserId)
 
-        ' Hanya tampilkan inbox yang belum di-follow
         Dim followingIds As New HashSet(Of String)(follows.Select(Function(f) f.UserId), StringComparer.OrdinalIgnoreCase)
         Dim pending As List(Of FirebaseFollowEntry) = inboxSenders.Where(Function(s) Not followingIds.Contains(s.UserId)).ToList()
 
@@ -362,7 +351,6 @@ Public Class SocialHubPage
 
     Private Async Sub lbFollowing_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lbFollowing.SelectedIndexChanged
         Dim sel As String = TryCast(lbFollowing.SelectedItem, String)
-        ' Pre-fill follow box untuk inbox items supaya mudah follow back
         If sel IsNot Nothing AndAlso sel.StartsWith("✉") Then
             Dim inboxUname As String = ExtractUsernameFromList()
             If Not String.IsNullOrWhiteSpace(inboxUname) Then
@@ -382,9 +370,7 @@ Public Class SocialHubPage
     Private Function ExtractUsernameFromList() As String
         Dim sel As String = TryCast(lbFollowing.SelectedItem, String)
         If String.IsNullOrWhiteSpace(sel) Then Return String.Empty
-        ' Skip section headers dan placeholders
         If sel.StartsWith("("c) OrElse sel.StartsWith("-"c) Then Return String.Empty
-        ' Hapus prefix ✉ untuk inbox items
         Dim cleaned As String = If(sel.StartsWith("✉"), sel.Substring(1).TrimStart(), sel)
         Dim raw As String = cleaned.TrimStart("@"c)
         Dim sp As Integer = raw.IndexOf(" "c)
@@ -399,7 +385,6 @@ Public Class SocialHubPage
         e.Graphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
         Dim isSelected As Boolean = (e.State And DrawItemState.Selected) = DrawItemState.Selected
 
-        ' ── Section header (starts with "---") ──────────────────────────
         If text.StartsWith("-"c) Then
             Using br As New SolidBrush(Color.FromArgb(11, 16, 28))
                 e.Graphics.FillRectangle(br, e.Bounds)
@@ -417,7 +402,6 @@ Public Class SocialHubPage
         Dim isPlaceholder As Boolean = text.StartsWith("("c)
         Dim isInbox As Boolean = text.StartsWith("✉")
 
-        ' Background
         Dim bg As Color
         If isInbox Then
             bg = If(isSelected, Color.FromArgb(54, 30, 6), Color.FromArgb(20, 12, 4))
@@ -425,7 +409,6 @@ Public Class SocialHubPage
             bg = If(isSelected, Color.FromArgb(20, 54, 80), Color.FromArgb(9, 15, 27))
         End If
 
-        ' Foreground
         Dim fg As Color
         If isInbox Then
             fg = If(isSelected, Color.FromArgb(255, 190, 80), Color.FromArgb(200, 148, 52))
@@ -442,7 +425,6 @@ Public Class SocialHubPage
         End Using
 
         If Not isPlaceholder Then
-            ' Ambil username murni untuk initial huruf
             Dim displayText As String = If(isInbox, text.Substring(1).TrimStart(), text)
             Dim rawForInitial As String = displayText.TrimStart("@"c)
             Dim initial As String = If(rawForInitial.Length > 0, rawForInitial.Substring(0, 1).ToUpperInvariant(), "?")
@@ -464,7 +446,6 @@ Public Class SocialHubPage
                     New RectangleF(circleRect.X, circleRect.Y, circleRect.Width, circleRect.Height), sf)
             End Using
 
-            ' Orange dot badge untuk inbox items
             If isInbox Then
                 Using badgeBrush As New SolidBrush(Color.FromArgb(230, 140, 20))
                     e.Graphics.FillEllipse(badgeBrush, New Rectangle(cx + 17, cy, 10, 10))
@@ -489,9 +470,7 @@ Public Class SocialHubPage
         End If
     End Sub
 
-    ' ═══════════════════════════════════════════
-    '  Chat
-    ' ═══════════════════════════════════════════
+    ' Chat Panel
     Private Async Function LoadConversationAsync() As Task
         If String.IsNullOrWhiteSpace(_activeChatUsername) Then
             lblTitle.Text = "# Social Room"
@@ -603,9 +582,7 @@ Public Class SocialHubPage
         End If
     End Sub
 
-    ' ═══════════════════════════════════════════
-    '  Realtime Chat Polling
-    ' ═══════════════════════════════════════════
+    ' Realtime Chat Polling
     Private Sub StartChatPolling()
         If _tmrChatPoll Is Nothing Then
             _tmrChatPoll = New System.Windows.Forms.Timer() With {.Interval = 3000}
@@ -629,7 +606,6 @@ Public Class SocialHubPage
             Dim latestTs As Long = rows.Max(Function(r) r.Timestamp)
             If latestTs <= _lastMsgTimestamp Then Return
 
-            ' Ada pesan baru – update UI
             _lastMsgTimestamp = latestTs
             lbConversation.Items.Clear()
             For Each row In rows
@@ -638,7 +614,6 @@ Public Class SocialHubPage
             Next
             lbConversation.TopIndex = lbConversation.Items.Count - 1
         Catch
-            ' Silent fail – jangan ganggu user saat polling background
         End Try
     End Sub
 
@@ -647,9 +622,7 @@ Public Class SocialHubPage
         _tmrChatPoll?.Dispose()
     End Sub
 
-    ' ═══════════════════════════════════════════
-    '  Close
-    ' ═══════════════════════════════════════════
+    ' Close
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Close()
     End Sub
