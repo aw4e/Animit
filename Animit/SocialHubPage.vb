@@ -14,10 +14,7 @@ Public Class SocialHubPage
     Private ReadOnly _dragger As New FormDragger()
 
     Private Async Sub SocialHubPage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        NightForm1.Cursor = Cursors.Hand
-        lblBrand.Cursor = Cursors.Hand
-        lblBadge.Cursor = Cursors.Hand
-        lblTitle.Cursor = Cursors.Hand
+        NightForm1.Cursor = Cursors.Default
         ApplyHeaderAlignment()
 
         ShowStatus("Memuat data sosial...", False)

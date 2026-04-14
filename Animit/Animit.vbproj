@@ -6,6 +6,9 @@
     <StartupObject>Sub Main</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
     <MyType>WindowsForms</MyType>
+    <!-- WebView2 buildTransitive targets add Microsoft.Web.WebView2.Wpf.dll even in WinForms projects,
+         causing a harmless WindowsBase version mismatch (4.0 vs 5.0 ref packs). Suppress the noise. -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
   <ItemGroup>

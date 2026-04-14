@@ -575,7 +575,6 @@ Public Class MainPage
         _episodeRowStartIndex = Math.Max(0, _episodeRowStartIndex - _episodeRowPageSize)
         Await EnsureCurrentPageThumbnailsAsync()
         RenderDashboardCardsPage()
-        UpdateDashboardRangeHint()
     End Sub
 
     Private Async Sub btnEpisodeNext_Click(sender As Object, e As EventArgs) Handles btnEpisodeNext.Click
@@ -592,7 +591,6 @@ Public Class MainPage
         _episodeRowStartIndex = Math.Min(maxStart, _episodeRowStartIndex + _episodeRowPageSize)
         Await EnsureCurrentPageThumbnailsAsync()
         RenderDashboardCardsPage()
-        UpdateDashboardRangeHint()
     End Sub
 
     Private Function CreateDashboardCard(item As AnimeCardItem) As Control
@@ -842,9 +840,7 @@ Public Class MainPage
         _serverChoices.Clear()
 
         If choices IsNot Nothing Then
-            For Each choice In choices.OrderByDescending(Function(c) c.QualityRank).ThenBy(Function(c) c.Label)
-                _serverChoices.Add(choice)
-            Next
+            _serverChoices.AddRange(choices)
         End If
 
         If _serverChoices.Count = 0 AndAlso Not String.IsNullOrWhiteSpace(fallbackUrl) Then
@@ -1205,14 +1201,13 @@ Public Class MainPage
         End Try
     End Sub
 
-    Private Async Sub txtChatInput_KeyDown(sender As Object, e As KeyEventArgs) Handles txtChatInput.KeyDown
+    Private Sub txtChatInput_KeyDown(sender As Object, e As KeyEventArgs) Handles txtChatInput.KeyDown
         If e.KeyCode <> Keys.Enter Then
             Return
         End If
 
         e.SuppressKeyPress = True
         btnSendChat.PerformClick()
-        Await Task.CompletedTask
     End Sub
 
     Private Async Sub tmrLiveChat_Tick(sender As Object, e As EventArgs) Handles tmrLiveChat.Tick

@@ -525,14 +525,11 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
     End Function
 
     Private Shared Function ReadEnvValue(name As String) As String
-        Dim value As String = Environment.GetEnvironmentVariable(name)
-        If String.IsNullOrWhiteSpace(value) Then
-            value = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User)
-        End If
-
-        If String.IsNullOrWhiteSpace(value) Then
-            value = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
-        End If
+        Dim value As String = Nothing
+        For Each target In {EnvironmentVariableTarget.Process, EnvironmentVariableTarget.User, EnvironmentVariableTarget.Machine}
+            value = Environment.GetEnvironmentVariable(name, target)
+            If Not String.IsNullOrWhiteSpace(value) Then Exit For
+        Next
 
         If String.IsNullOrWhiteSpace(value) Then
             Return value
@@ -586,16 +583,9 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
     End Function
 
     Private Shared Function BuildDirectRoomId(userIdA As String, userIdB As String) As String
-        Dim first As String = If(userIdA, String.Empty).Trim()
-        Dim second As String = If(userIdB, String.Empty).Trim()
-
-        If String.Compare(first, second, StringComparison.OrdinalIgnoreCase) > 0 Then
-            Dim temp As String = first
-            first = second
-            second = temp
-        End If
-
-        Return $"chat_room_dm_{first}_{second}"
+        Dim ids As String() = {If(userIdA, String.Empty).Trim(), If(userIdB, String.Empty).Trim()}
+        Array.Sort(ids, StringComparer.OrdinalIgnoreCase)
+        Return $"chat_room_dm_{ids(0)}_{ids(1)}"
     End Function
 End Class
 
