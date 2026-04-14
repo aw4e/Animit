@@ -116,8 +116,12 @@ Public Class MainPage
             If pnlWatchPlayer.Parent IsNot Me Then
                 pnlWatchPlayer.Parent = Me
             End If
-            pnlWatchPlayer.Dock = DockStyle.Fill
+            pnlWatchPlayer.Dock = DockStyle.None
+            pnlWatchPlayer.SetBounds(0, 0, Me.ClientSize.Width, Me.ClientSize.Height)
             pnlWatchPlayer.BringToFront()
+            webEpisodePlayer.Dock = DockStyle.None
+            webEpisodePlayer.SetBounds(0, 0, pnlWatchPlayer.ClientSize.Width, pnlWatchPlayer.ClientSize.Height)
+            webEpisodePlayer.BringToFront()
             Return
         End If
 
@@ -301,7 +305,6 @@ Public Class MainPage
 
         ' Setelah form maximized, set bounds secara eksplisit agar pasti full screen
         Application.DoEvents()
-        Dim screenBounds As Rectangle = Screen.FromControl(Me).Bounds
         pnlWatchPlayer.SetBounds(0, 0, Me.ClientSize.Width, Me.ClientSize.Height)
         pnlWatchPlayer.BringToFront()
 

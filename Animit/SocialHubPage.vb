@@ -15,6 +15,8 @@ Public Class SocialHubPage
     Private ReadOnly _dragger As New FormDragger()
     Private Shared ReadOnly _httpAvatar As New HttpClient()
     Private _activeChatUsername As String = String.Empty
+    Private _tmrChatPoll As System.Windows.Forms.Timer
+    Private _lastMsgTimestamp As Long = 0
 
     ' Separator panels – created in code so VS Designer can't wipe them
     Private _sepLeftCard As Panel
@@ -319,8 +321,10 @@ Public Class SocialHubPage
         Dim uname As String = ExtractUsernameFromList()
         If String.IsNullOrWhiteSpace(uname) Then Return
         _activeChatUsername = uname
+        _lastMsgTimestamp = 0
         lblTitle.Text = $"# {uname}"
         Await LoadConversationAsync()
+        StartChatPolling()
     End Sub
 
     Private Function ExtractUsernameFromList() As String
@@ -399,6 +403,7 @@ Public Class SocialHubPage
             Dim t As String = If(row.Timestamp > 0, DateTimeOffset.FromUnixTimeSeconds(row.Timestamp).ToLocalTime().ToString("HH:mm"), "--:--")
             lbConversation.Items.Add($"{row.Sender}|{t}|{row.Text}")
         Next
+        _lastMsgTimestamp = rows.Max(Function(r) r.Timestamp)
         lbConversation.TopIndex = lbConversation.Items.Count - 1
     End Function
 
@@ -488,6 +493,50 @@ Public Class SocialHubPage
             e.SuppressKeyPress = True
             btnSendMessage.PerformClick()
         End If
+    End Sub
+
+    ' ═══════════════════════════════════════════
+    '  Realtime Chat Polling
+    ' ═══════════════════════════════════════════
+    Private Sub StartChatPolling()
+        If _tmrChatPoll Is Nothing Then
+            _tmrChatPoll = New System.Windows.Forms.Timer() With {.Interval = 3000}
+            AddHandler _tmrChatPoll.Tick, AddressOf ChatPollTick
+        End If
+        _tmrChatPoll.Start()
+    End Sub
+
+    Private Sub StopChatPolling()
+        If _tmrChatPoll IsNot Nothing Then
+            _tmrChatPoll.Stop()
+        End If
+    End Sub
+
+    Private Async Sub ChatPollTick(sender As Object, e As EventArgs)
+        If String.IsNullOrWhiteSpace(_activeChatUsername) OrElse _firebase Is Nothing Then Return
+        Try
+            Dim rows As List(Of FirebaseChatMessagePreview) = Await _firebase.GetDirectMessagesByUsernameAsync(CurrentUserId, _activeChatUsername, 50)
+            If rows.Count = 0 Then Return
+
+            Dim latestTs As Long = rows.Max(Function(r) r.Timestamp)
+            If latestTs <= _lastMsgTimestamp Then Return
+
+            ' Ada pesan baru – update UI
+            _lastMsgTimestamp = latestTs
+            lbConversation.Items.Clear()
+            For Each row In rows
+                Dim t As String = If(row.Timestamp > 0, DateTimeOffset.FromUnixTimeSeconds(row.Timestamp).ToLocalTime().ToString("HH:mm"), "--:--")
+                lbConversation.Items.Add($"{row.Sender}|{t}|{row.Text}")
+            Next
+            lbConversation.TopIndex = lbConversation.Items.Count - 1
+        Catch
+            ' Silent fail – jangan ganggu user saat polling background
+        End Try
+    End Sub
+
+    Private Sub SocialHubPage_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        StopChatPolling()
+        _tmrChatPoll?.Dispose()
     End Sub
 
     ' ═══════════════════════════════════════════
