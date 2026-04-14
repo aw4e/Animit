@@ -554,11 +554,10 @@ Partial Class SocialHubPage
         lbConversation.BackColor = Color.FromArgb(CByte(11), CByte(18), CByte(32))
         lbConversation.BorderStyle = BorderStyle.None
         lbConversation.Dock = DockStyle.Fill
-        lbConversation.DrawMode = DrawMode.OwnerDrawFixed
+        lbConversation.DrawMode = DrawMode.OwnerDrawVariable
         lbConversation.Font = New Font("Segoe UI", 9.5F)
         lbConversation.ForeColor = Color.FromArgb(CByte(210), CByte(220), CByte(238))
         lbConversation.FormattingEnabled = True
-        lbConversation.ItemHeight = 48
         lbConversation.Location = New Point(4, 4)
         lbConversation.Margin = New Padding(3, 2, 3, 2)
         lbConversation.Name = "lbConversation"

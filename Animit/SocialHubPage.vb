@@ -441,6 +441,35 @@ Public Class SocialHubPage
         lbConversation.TopIndex = lbConversation.Items.Count - 1
     End Function
 
+    Private Sub lbConversation_MeasureItem(sender As Object, e As MeasureItemEventArgs) Handles lbConversation.MeasureItem
+        If e.Index < 0 OrElse e.Index >= lbConversation.Items.Count Then
+            e.ItemHeight = 48
+            Return
+        End If
+        Dim raw As String = TryCast(lbConversation.Items(e.Index), String)
+        If String.IsNullOrWhiteSpace(raw) Then
+            e.ItemHeight = 48
+            Return
+        End If
+
+        Dim parts As String() = raw.Split("|"c, 3)
+        If parts.Length < 3 Then
+            e.ItemHeight = 36
+            Return
+        End If
+
+        Dim msgText As String = parts(2)
+        Dim isSelf As Boolean = String.Equals(parts(0), CurrentUsername, StringComparison.OrdinalIgnoreCase)
+
+        Dim textW As Integer = CInt(lbConversation.ClientSize.Width * 0.68) - 24
+        Using mf As New Font("Segoe UI", 10.0F)
+            Dim textSize As SizeF = e.Graphics.MeasureString(msgText, mf, textW)
+            Dim headerH As Integer = If(isSelf, 0, 18)
+            e.ItemHeight = CInt(textSize.Height) + headerH + 24
+        End Using
+        If e.ItemHeight < 48 Then e.ItemHeight = 48
+    End Sub
+
     Private Sub lbConversation_DrawItem(sender As Object, e As DrawItemEventArgs) Handles lbConversation.DrawItem
         If e.Index < 0 OrElse e.Index >= lbConversation.Items.Count Then Return
         Dim raw As String = TryCast(lbConversation.Items(e.Index), String)
@@ -464,38 +493,39 @@ Public Class SocialHubPage
         Dim msgText As String = parts(2)
         Dim isSelf As Boolean = String.Equals(senderName, CurrentUsername, StringComparison.OrdinalIgnoreCase)
 
-        Dim bubbleW As Integer = CInt(e.Bounds.Width * 0.68)
         Dim pad As Integer = 10
+        Dim bubbleW As Integer = CInt(e.Bounds.Width * 0.68)
         Dim bubbleX As Integer = If(isSelf, e.Bounds.Right - bubbleW - pad, e.Bounds.X + pad)
-        Dim bubbleRect As New Rectangle(bubbleX, e.Bounds.Y + 4, bubbleW, e.Bounds.Height - 8)
+        Dim bubbleRect As New Rectangle(bubbleX, e.Bounds.Y + 6, bubbleW, e.Bounds.Height - 12)
 
         Using bg As New SolidBrush(If(isSelf, _selfColor, _otherColor))
             e.Graphics.FillRectangle(bg, bubbleRect)
         End Using
 
-        Dim tx As Single = bubbleRect.X + 8
-        Dim tw As Single = bubbleRect.Width - 16
+        Dim padH As Integer = 12
+        Dim tx As Single = bubbleRect.X + padH
+        Dim tw As Single = bubbleRect.Width - padH * 2
 
         If Not isSelf Then
             Using sf As New Font("Segoe UI Semibold", 8.0F, FontStyle.Bold)
                 Using sb As New SolidBrush(Color.FromArgb(84, 234, 255))
-                    e.Graphics.DrawString($"@{senderName}  {timeStr}", sf, sb, New RectangleF(tx, bubbleRect.Y + 4, tw, 16))
+                    e.Graphics.DrawString($"@{senderName}  {timeStr}", sf, sb, New RectangleF(tx, bubbleRect.Y + 8, tw, 16))
                 End Using
             End Using
         Else
             Using tf As New Font("Segoe UI", 7.5F, FontStyle.Italic)
                 Using tb As New SolidBrush(Color.FromArgb(110, 170, 200))
-                    e.Graphics.DrawString(timeStr, tf, tb, New RectangleF(tx, bubbleRect.Y + 4, tw, 16),
+                    e.Graphics.DrawString(timeStr, tf, tb, New RectangleF(tx, bubbleRect.Y + 8, tw, 16),
                         New StringFormat With {.Alignment = StringAlignment.Far})
                 End Using
             End Using
         End If
 
-        Dim msgOff As Integer = If(isSelf, 4, 20)
+        Dim msgOff As Integer = If(isSelf, 6, 24)
         Using mf As New Font("Segoe UI", 10.0F)
             Using mb As New SolidBrush(If(isSelf, _selfTextColor, _otherTextColor))
                 e.Graphics.DrawString(msgText, mf, mb,
-                    New RectangleF(tx, bubbleRect.Y + msgOff, tw, bubbleRect.Height - msgOff - 4))
+                    New RectangleF(tx, bubbleRect.Y + msgOff, tw, bubbleRect.Height - msgOff - 8))
             End Using
         End Using
     End Sub
