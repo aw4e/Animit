@@ -46,6 +46,9 @@ Public Class MainPage
     Private _episodeRowPageSize As Integer = 1
     Private _isManualVideoFullscreen As Boolean
     Private ReadOnly _dragger As New FormDragger()
+    Private _localRemainingSeconds As Integer = -1
+    Private _localDailyLimit As Integer = 120
+    Private _watchSecondsForFirebase As Integer = 0
 
     Private Const CardWidth As Integer = 158
     Private Const CardHeight As Integer = 250
@@ -93,6 +96,7 @@ Public Class MainPage
 
         Await EnterDashboardModeAsync(True)
         Await LoadMainAvatarAsync()
+        Await LoadLimitTrackerAsync()
     End Sub
 
     Private Sub MainPage_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
@@ -158,6 +162,8 @@ Public Class MainPage
         txtSearch.Width = Math.Max(100, pnlSearchInput.Width - 44)
 
         lnkLogout.Left = pnlSearchInput.Left - lnkLogout.Width - 14
+        lblRemainingTime.Left = lnkLogout.Left - lblRemainingTime.Width - 8
+        lblRemainingTime.Top = lnkLogout.Top
 
         Dim headerBottom As Integer = 94
         pnlContentHost.Left = contentLeft
@@ -303,15 +309,21 @@ Public Class MainPage
         TopMost = True
         btnFullscreen.Text = "🗗"
 
-        ' Setelah form maximized, set bounds secara eksplisit agar pasti full screen
-        Application.DoEvents()
+        ' WM_SIZE dari WindowState update ClientSize secara synchronous, langsung set bounds
         pnlWatchPlayer.SetBounds(0, 0, Me.ClientSize.Width, Me.ClientSize.Height)
         pnlWatchPlayer.BringToFront()
-
-        ' Set webEpisodePlayer langsung full size, bypass semua dock chain
         webEpisodePlayer.Dock = DockStyle.None
         webEpisodePlayer.SetBounds(0, 0, pnlWatchPlayer.ClientSize.Width, pnlWatchPlayer.ClientSize.Height)
         webEpisodePlayer.BringToFront()
+
+        ' Deferred re-apply setelah semua pending messages selesai diproses
+        Me.BeginInvoke(New Action(Sub()
+                                      If Not _isWebContentFullscreen Then Return
+                                      pnlWatchPlayer.SetBounds(0, 0, Me.ClientSize.Width, Me.ClientSize.Height)
+                                      pnlWatchPlayer.BringToFront()
+                                      webEpisodePlayer.SetBounds(0, 0, pnlWatchPlayer.ClientSize.Width, pnlWatchPlayer.ClientSize.Height)
+                                      webEpisodePlayer.BringToFront()
+                                  End Sub))
     End Sub
 
     Private Sub ExitWebFullscreenMode()
@@ -379,6 +391,7 @@ Public Class MainPage
         lnkNavMovies.Visible = isVisible
         lnkSocial.Visible = isVisible
         lnkLogout.Visible = isVisible
+        lblRemainingTime.Visible = isVisible
         pnlSearchInput.Visible = isVisible
         btnSearch.Visible = isVisible
         btnRefresh.Visible = isVisible
@@ -444,6 +457,51 @@ Public Class MainPage
         End Using
         Return bmp
     End Function
+
+    Private Async Function LoadLimitTrackerAsync() As Task
+        If String.IsNullOrWhiteSpace(CurrentUserId) Then Return
+        If Not EnsureFirebaseClient() Then Return
+        Try
+            Dim tracker As FirebaseLimitTracker = Await _firebase.GetLimitTrackerAsync(CurrentUserId)
+            If tracker Is Nothing Then Return
+
+            Dim todayStr As String = DateTime.UtcNow.ToString("yyyy-MM-dd")
+            Dim watchedToday As Integer = If(
+                String.Equals(tracker.last_watch_date, todayStr, StringComparison.OrdinalIgnoreCase),
+                tracker.minutes_watched_today, 0)
+            _localDailyLimit = tracker.daily_limit_minutes
+            _localRemainingSeconds = Math.Max(0, (_localDailyLimit - watchedToday) * 60)
+            UpdateRemainingTimeDisplay()
+        Catch
+        End Try
+    End Function
+
+    Private Sub UpdateRemainingTimeDisplay()
+        If _localRemainingSeconds < 0 Then Return
+        Dim ts As TimeSpan = TimeSpan.FromSeconds(_localRemainingSeconds)
+        lblRemainingTime.Text = $"⏱ {CInt(ts.TotalHours):D2}:{ts.Minutes:D2}:{ts.Seconds:D2}"
+    End Sub
+
+    Private Async Sub tmrWatchTime_Tick(sender As Object, e As EventArgs) Handles tmrWatchTime.Tick
+        If Not webEpisodePlayer.Visible Then
+            tmrWatchTime.Stop()
+            Return
+        End If
+        If _localRemainingSeconds > 0 Then
+            _localRemainingSeconds -= 1
+        End If
+        UpdateRemainingTimeDisplay()
+        _watchSecondsForFirebase += 1
+        If _watchSecondsForFirebase >= 60 Then
+            _watchSecondsForFirebase = 0
+            If Not String.IsNullOrWhiteSpace(CurrentUserId) AndAlso EnsureFirebaseClient() Then
+                Try
+                    Await _firebase.IncrementWatchMinutesAsync(CurrentUserId)
+                Catch
+                End Try
+            End If
+        End If
+    End Sub
 
     Private Sub PnlFeaturedOverlay_Paint(sender As Object, e As PaintEventArgs)
         Dim panelW As Integer = pnlFeaturedOverlay.Width
@@ -1094,6 +1152,8 @@ Public Class MainPage
             webEpisodePlayer.Visible = True
             webEpisodePlayer.CoreWebView2.NavigateToString(BuildPlayerHtml(autoplayUrl))
             lblWatchHint.Text = $"Memutar otomatis: {choice.Label}"
+            _watchSecondsForFirebase = 0
+            tmrWatchTime.Start()
         Catch ex As Exception
             StopEmbeddedPlayer()
             lblWatchHint.Text = "Gagal autoplay embed. Coba pilih server lain."
@@ -1116,6 +1176,7 @@ Public Class MainPage
     End Function
 
     Private Sub StopEmbeddedPlayer()
+        tmrWatchTime.Stop()
         If _isWebContentFullscreen Then
             ExitWebFullscreenMode()
         End If
@@ -1462,6 +1523,13 @@ Public Class MainPage
         End If
 
         If _isApplyingFullscreenTransition Then
+            Return
+        End If
+
+        ' Abaikan event exit dari Chrome saat kita sedang mengelola host fullscreen.
+        ' Chrome kadang fire ContainsFullScreenElement=False saat pnlWatchPlayer di-reparent,
+        ' yang akan salah trigger ExitWebFullscreenMode dan membatalkan fullscreen kita.
+        If _isWebContentFullscreen AndAlso Not core.ContainsFullScreenElement Then
             Return
         End If
 

@@ -18,7 +18,7 @@ Public Class SocialHubPage
     Private _tmrChatPoll As System.Windows.Forms.Timer
     Private _lastMsgTimestamp As Long = 0
 
-    ' Separator panels – created in code so VS Designer can't wipe them
+    ' Separator lines — created in code (thin panels, not worth Designer noise)
     Private _sepLeftCard As Panel
     Private _sepMidFollow As Panel
     Private _sepChatTop As Panel
@@ -62,29 +62,32 @@ Public Class SocialHubPage
         End Try
     End Sub
 
-    ' ── Build separator lines programmatically ─
+    ' ── Build code-only controls (separators + stats label) ─
     Private Sub BuildSeparators()
         Dim sepColor As Color = Color.FromArgb(32, 44, 66)
 
+        ' Separator: just above the "EDIT PROFIL" section header
         _sepLeftCard = New Panel With {
             .BackColor = sepColor,
-            .Location = New Point(0, 148),
+            .Location = New Point(0, lblSectionProfile.Top - 2),
             .Size = New Size(panelLeft.Width, 1),
             .TabStop = False
         }
         panelLeft.Controls.Add(_sepLeftCard)
 
+        ' Separator: just above the following header strip
         _sepMidFollow = New Panel With {
             .BackColor = Color.FromArgb(26, 36, 56),
-            .Location = New Point(0, 96),
+            .Location = New Point(0, pnlFollowingHeader.Top - 1),
             .Size = New Size(panelMiddle.Width, 1),
             .TabStop = False
         }
         panelMiddle.Controls.Add(_sepMidFollow)
 
+        ' Separator: just below the chat header (Dock=Top) + panel padding
         _sepChatTop = New Panel With {
             .BackColor = Color.FromArgb(26, 36, 58),
-            .Location = New Point(0, 59),
+            .Location = New Point(0, panelChatHeader.Height + 4),
             .Size = New Size(panelRight.Width, 1),
             .TabStop = False
         }
@@ -207,6 +210,26 @@ Public Class SocialHubPage
         lblProfileUserId.Text = $"uid: {CurrentUserId}"
 
         Await LoadAvatarAsync(profile?.avatar_url)
+        Await LoadProfileStatsAsync()
+    End Function
+
+    Private Async Function LoadProfileStatsAsync() As Task
+        Try
+            Dim tracker As FirebaseLimitTracker = Await _firebase.GetLimitTrackerAsync(CurrentUserId)
+            Dim followerCount As Integer = Await _firebase.GetFollowerCountAsync(CurrentUserId)
+            Dim followingCount As Integer = Await _firebase.GetFollowingCountAsync(CurrentUserId)
+
+            Dim remaining As Integer = 0
+            Dim limitTotal As Integer = 0
+            If tracker IsNot Nothing Then
+                limitTotal = tracker.daily_limit_minutes
+                remaining = Math.Max(0, limitTotal - tracker.minutes_watched_today)
+            End If
+
+            lblProfileStats.Text = $"Following {followingCount}  ·  Followers {followerCount}  ·  Sisa {remaining}/{limitTotal}m"
+        Catch
+            ' Stats optional – silent fail
+        End Try
     End Function
 
     Private Async Function LoadAvatarAsync(avatarUrl As String) As Task
@@ -280,13 +303,33 @@ Public Class SocialHubPage
     Private Async Function RefreshFollowingAsync() As Task
         lbFollowing.Items.Clear()
         Dim follows As List(Of FirebaseFollowEntry) = Await _firebase.GetFollowingAsync(CurrentUserId)
-        If follows.Count = 0 Then
+        Dim inboxSenders As List(Of FirebaseFollowEntry) = Await _firebase.GetDmInboxSendersAsync(CurrentUserId)
+
+        ' Hanya tampilkan inbox yang belum di-follow
+        Dim followingIds As New HashSet(Of String)(follows.Select(Function(f) f.UserId), StringComparer.OrdinalIgnoreCase)
+        Dim pending As List(Of FirebaseFollowEntry) = inboxSenders.Where(Function(s) Not followingIds.Contains(s.UserId)).ToList()
+
+        ' Section: PESAN MASUK
+        If pending.Count > 0 Then
+            lbFollowing.Items.Add("--- PESAN MASUK ---")
+            For Each row In pending
+                lbFollowing.Items.Add($"✉ @{row.Username}")
+            Next
+        End If
+
+        ' Section: FOLLOWING
+        If follows.Count = 0 AndAlso pending.Count = 0 Then
             lbFollowing.Items.Add("(Belum follow siapa pun)")
             Return
         End If
-        For Each row In follows
-            lbFollowing.Items.Add($"@{row.Username}{If(row.Relationship = "mutual", " ⇌", "")}")
-        Next
+        If follows.Count > 0 Then
+            If pending.Count > 0 Then
+                lbFollowing.Items.Add("--- FOLLOWING ---")
+            End If
+            For Each row In follows
+                lbFollowing.Items.Add($"@{row.Username}{If(row.Relationship = "mutual", " ⇌", "")}")
+            Next
+        End If
     End Function
 
     Private Async Sub btnFollow_Click(sender As Object, e As EventArgs) Handles btnFollow.Click
@@ -318,6 +361,15 @@ Public Class SocialHubPage
     End Sub
 
     Private Async Sub lbFollowing_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lbFollowing.SelectedIndexChanged
+        Dim sel As String = TryCast(lbFollowing.SelectedItem, String)
+        ' Pre-fill follow box untuk inbox items supaya mudah follow back
+        If sel IsNot Nothing AndAlso sel.StartsWith("✉") Then
+            Dim inboxUname As String = ExtractUsernameFromList()
+            If Not String.IsNullOrWhiteSpace(inboxUname) Then
+                txtFollowUsername.Text = inboxUname
+            End If
+        End If
+
         Dim uname As String = ExtractUsernameFromList()
         If String.IsNullOrWhiteSpace(uname) Then Return
         _activeChatUsername = uname
@@ -329,8 +381,12 @@ Public Class SocialHubPage
 
     Private Function ExtractUsernameFromList() As String
         Dim sel As String = TryCast(lbFollowing.SelectedItem, String)
-        If String.IsNullOrWhiteSpace(sel) OrElse sel.StartsWith("("c) Then Return String.Empty
-        Dim raw As String = sel.TrimStart("@"c)
+        If String.IsNullOrWhiteSpace(sel) Then Return String.Empty
+        ' Skip section headers dan placeholders
+        If sel.StartsWith("("c) OrElse sel.StartsWith("-"c) Then Return String.Empty
+        ' Hapus prefix ✉ untuk inbox items
+        Dim cleaned As String = If(sel.StartsWith("✉"), sel.Substring(1).TrimStart(), sel)
+        Dim raw As String = cleaned.TrimStart("@"c)
         Dim sp As Integer = raw.IndexOf(" "c)
         Return If(sp > 0, raw.Substring(0, sp), raw).Trim()
     End Function
@@ -340,36 +396,88 @@ Public Class SocialHubPage
         Dim text As String = TryCast(lbFollowing.Items(e.Index), String)
         If String.IsNullOrWhiteSpace(text) Then Return
 
-        Dim isSelected As Boolean = (e.State And DrawItemState.Selected) = DrawItemState.Selected
-        Dim isPlaceholder As Boolean = text.StartsWith("("c)
-
-        Dim bg As Color = If(isSelected, Color.FromArgb(20, 54, 80), Color.FromArgb(9, 15, 27))
-        Dim fg As Color = If(isSelected, Color.FromArgb(84, 234, 255), If(isPlaceholder, Color.FromArgb(55, 68, 90), Color.FromArgb(175, 188, 210)))
-
         e.Graphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+        Dim isSelected As Boolean = (e.State And DrawItemState.Selected) = DrawItemState.Selected
+
+        ' ── Section header (starts with "---") ──────────────────────────
+        If text.StartsWith("-"c) Then
+            Using br As New SolidBrush(Color.FromArgb(11, 16, 28))
+                e.Graphics.FillRectangle(br, e.Bounds)
+            End Using
+            Using hf As New Font("Segoe UI", 6.5F, FontStyle.Bold)
+                Using hb As New SolidBrush(Color.FromArgb(65, 82, 110))
+                    Dim sf As New StringFormat With {.LineAlignment = StringAlignment.Center}
+                    e.Graphics.DrawString(text.Trim("-"c).Trim(), hf, hb,
+                        New RectangleF(e.Bounds.X + 10, e.Bounds.Y, e.Bounds.Width - 10, e.Bounds.Height), sf)
+                End Using
+            End Using
+            Return
+        End If
+
+        Dim isPlaceholder As Boolean = text.StartsWith("("c)
+        Dim isInbox As Boolean = text.StartsWith("✉")
+
+        ' Background
+        Dim bg As Color
+        If isInbox Then
+            bg = If(isSelected, Color.FromArgb(54, 30, 6), Color.FromArgb(20, 12, 4))
+        Else
+            bg = If(isSelected, Color.FromArgb(20, 54, 80), Color.FromArgb(9, 15, 27))
+        End If
+
+        ' Foreground
+        Dim fg As Color
+        If isInbox Then
+            fg = If(isSelected, Color.FromArgb(255, 190, 80), Color.FromArgb(200, 148, 52))
+        ElseIf isSelected Then
+            fg = Color.FromArgb(84, 234, 255)
+        ElseIf isPlaceholder Then
+            fg = Color.FromArgb(55, 68, 90)
+        Else
+            fg = Color.FromArgb(175, 188, 210)
+        End If
+
         Using bgBrush As New SolidBrush(bg)
             e.Graphics.FillRectangle(bgBrush, e.Bounds)
         End Using
 
         If Not isPlaceholder Then
-            Dim initial As String = text.TrimStart("@"c).Substring(0, 1).ToUpperInvariant()
+            ' Ambil username murni untuk initial huruf
+            Dim displayText As String = If(isInbox, text.Substring(1).TrimStart(), text)
+            Dim rawForInitial As String = displayText.TrimStart("@"c)
+            Dim initial As String = If(rawForInitial.Length > 0, rawForInitial.Substring(0, 1).ToUpperInvariant(), "?")
+
             Dim cx As Integer = e.Bounds.X + 10
             Dim cy As Integer = e.Bounds.Y + (e.Bounds.Height - 26) \ 2
             Dim circleRect As New Rectangle(cx, cy, 26, 26)
-            Using circleBrush As New SolidBrush(If(isSelected, Color.FromArgb(38, 100, 130), Color.FromArgb(28, 72, 98)))
+
+            Dim circleColor As Color = If(isInbox,
+                If(isSelected, Color.FromArgb(140, 72, 10), Color.FromArgb(90, 48, 8)),
+                If(isSelected, Color.FromArgb(38, 100, 130), Color.FromArgb(28, 72, 98)))
+
+            Using circleBrush As New SolidBrush(circleColor)
                 e.Graphics.FillEllipse(circleBrush, circleRect)
             End Using
             Using initFont As New Font("Segoe UI Semibold", 9.0F, FontStyle.Bold)
                 Dim sf As New StringFormat With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-                e.Graphics.DrawString(initial, initFont, Brushes.White, New RectangleF(circleRect.X, circleRect.Y, circleRect.Width, circleRect.Height), sf)
+                e.Graphics.DrawString(initial, initFont, Brushes.White,
+                    New RectangleF(circleRect.X, circleRect.Y, circleRect.Width, circleRect.Height), sf)
             End Using
+
+            ' Orange dot badge untuk inbox items
+            If isInbox Then
+                Using badgeBrush As New SolidBrush(Color.FromArgb(230, 140, 20))
+                    e.Graphics.FillEllipse(badgeBrush, New Rectangle(cx + 17, cy, 10, 10))
+                End Using
+            End If
         End If
 
         Dim textX As Integer = If(isPlaceholder, e.Bounds.X + 14, e.Bounds.X + 44)
+        Dim renderText As String = If(isInbox, text.Substring(1).TrimStart(), text)
         Dim textRect As New RectangleF(textX, e.Bounds.Y, e.Bounds.Width - textX + e.Bounds.X, e.Bounds.Height)
         Using fgBrush As New SolidBrush(fg)
             Dim sf As New StringFormat With {.LineAlignment = StringAlignment.Center}
-            e.Graphics.DrawString(text, lbFollowing.Font, fgBrush, textRect, sf)
+            e.Graphics.DrawString(renderText, lbFollowing.Font, fgBrush, textRect, sf)
         End Using
         e.DrawFocusRectangle()
     End Sub

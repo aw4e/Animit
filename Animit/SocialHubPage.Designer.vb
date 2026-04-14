@@ -30,6 +30,7 @@ Partial Class SocialHubPage
         picProfileAvatar = New PictureBox()
         lblDisplayName = New Label()
         lblDisplayBio = New Label()
+        lblProfileStats = New Label()
         lblSectionProfile = New Label()
         lblProfileUsernameHint = New Label()
         txtProfileUsername = New TextBox()
@@ -112,7 +113,7 @@ Partial Class SocialHubPage
         lblBrand.BackColor = Color.Transparent
         lblBrand.Font = New Font("Segoe UI", 14.0F, FontStyle.Bold)
         lblBrand.ForeColor = Color.FromArgb(CByte(83), CByte(231), CByte(248))
-        lblBrand.Location = New Point(16, 11)
+        lblBrand.Location = New Point(4, 5)
         lblBrand.Name = "lblBrand"
         lblBrand.Size = New Size(108, 25)
         lblBrand.TabIndex = 1
@@ -123,7 +124,7 @@ Partial Class SocialHubPage
         lblBadge.BackColor = Color.FromArgb(CByte(14), CByte(42), CByte(58))
         lblBadge.Font = New Font("Segoe UI Semibold", 7.0F, FontStyle.Bold)
         lblBadge.ForeColor = Color.FromArgb(CByte(84), CByte(234), CByte(255))
-        lblBadge.Location = New Point(156, 15)
+        lblBadge.Location = New Point(117, 11)
         lblBadge.Name = "lblBadge"
         lblBadge.Size = New Size(88, 15)
         lblBadge.TabIndex = 2
@@ -137,6 +138,7 @@ Partial Class SocialHubPage
         panelLeft.Controls.Add(panelAvatarBg)
         panelLeft.Controls.Add(lblDisplayName)
         panelLeft.Controls.Add(lblDisplayBio)
+        panelLeft.Controls.Add(lblProfileStats)
         panelLeft.Controls.Add(lblSectionProfile)
         panelLeft.Controls.Add(lblProfileUsernameHint)
         panelLeft.Controls.Add(txtProfileUsername)
@@ -150,7 +152,7 @@ Partial Class SocialHubPage
         panelLeft.Location = New Point(0, 40)
         panelLeft.Margin = New Padding(3, 2, 3, 2)
         panelLeft.Name = "panelLeft"
-        panelLeft.Padding = New Padding(4, 4, 4, 4)
+        panelLeft.Padding = New Padding(4)
         panelLeft.Size = New Size(210, 455)
         panelLeft.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelLeft.TabIndex = 3
@@ -164,7 +166,7 @@ Partial Class SocialHubPage
         panelAvatarBg.Location = New Point(77, 10)
         panelAvatarBg.Margin = New Padding(3, 2, 3, 2)
         panelAvatarBg.Name = "panelAvatarBg"
-        panelAvatarBg.Padding = New Padding(4, 4, 4, 4)
+        panelAvatarBg.Padding = New Padding(4)
         panelAvatarBg.Size = New Size(56, 48)
         panelAvatarBg.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelAvatarBg.TabIndex = 0
@@ -216,91 +218,103 @@ Partial Class SocialHubPage
         lblDisplayBio.TabIndex = 2
         lblDisplayBio.Text = "-"
         lblDisplayBio.TextAlign = ContentAlignment.TopCenter
-        ' 
+        '
+        ' lblProfileStats
+        '
+        lblProfileStats.BackColor = Color.Transparent
+        lblProfileStats.Font = New Font("Segoe UI", 7.5F)
+        lblProfileStats.ForeColor = Color.FromArgb(CByte(100), CByte(120), CByte(152))
+        lblProfileStats.Location = New Point(9, 109)
+        lblProfileStats.Name = "lblProfileStats"
+        lblProfileStats.Size = New Size(192, 16)
+        lblProfileStats.TabIndex = 12
+        lblProfileStats.Text = "memuat..."
+        lblProfileStats.TextAlign = ContentAlignment.MiddleCenter
+        '
         ' lblSectionProfile
-        ' 
+        '
         lblSectionProfile.Font = New Font("Segoe UI", 7.0F, FontStyle.Bold)
         lblSectionProfile.ForeColor = Color.FromArgb(CByte(70), CByte(90), CByte(120))
-        lblSectionProfile.Location = New Point(12, 117)
+        lblSectionProfile.Location = New Point(12, 129)
         lblSectionProfile.Name = "lblSectionProfile"
         lblSectionProfile.Size = New Size(186, 10)
         lblSectionProfile.TabIndex = 3
         lblSectionProfile.Text = "EDIT PROFIL"
-        ' 
+        '
         ' lblProfileUsernameHint
-        ' 
+        '
         lblProfileUsernameHint.AutoSize = True
         lblProfileUsernameHint.Font = New Font("Segoe UI", 7.0F, FontStyle.Bold)
         lblProfileUsernameHint.ForeColor = Color.FromArgb(CByte(110), CByte(126), CByte(152))
-        lblProfileUsernameHint.Location = New Point(12, 130)
+        lblProfileUsernameHint.Location = New Point(12, 142)
         lblProfileUsernameHint.Name = "lblProfileUsernameHint"
         lblProfileUsernameHint.Size = New Size(50, 12)
         lblProfileUsernameHint.TabIndex = 4
         lblProfileUsernameHint.Text = "Username"
-        ' 
+        '
         ' txtProfileUsername
-        ' 
+        '
         txtProfileUsername.BackColor = Color.FromArgb(CByte(16), CByte(22), CByte(36))
         txtProfileUsername.BorderStyle = BorderStyle.FixedSingle
         txtProfileUsername.Font = New Font("Segoe UI Semibold", 9.0F)
         txtProfileUsername.ForeColor = Color.Gainsboro
-        txtProfileUsername.Location = New Point(12, 142)
+        txtProfileUsername.Location = New Point(12, 154)
         txtProfileUsername.Margin = New Padding(3, 2, 3, 2)
         txtProfileUsername.Name = "txtProfileUsername"
         txtProfileUsername.Size = New Size(186, 23)
         txtProfileUsername.TabIndex = 5
-        ' 
+        '
         ' lblProfileEmailHint
-        ' 
+        '
         lblProfileEmailHint.AutoSize = True
         lblProfileEmailHint.Font = New Font("Segoe UI", 7.0F, FontStyle.Bold)
         lblProfileEmailHint.ForeColor = Color.FromArgb(CByte(110), CByte(126), CByte(152))
-        lblProfileEmailHint.Location = New Point(12, 166)
+        lblProfileEmailHint.Location = New Point(12, 178)
         lblProfileEmailHint.Name = "lblProfileEmailHint"
         lblProfileEmailHint.Size = New Size(30, 12)
         lblProfileEmailHint.TabIndex = 6
         lblProfileEmailHint.Text = "Email"
-        ' 
+        '
         ' txtProfileEmail
-        ' 
+        '
         txtProfileEmail.BackColor = Color.FromArgb(CByte(13), CByte(18), CByte(28))
         txtProfileEmail.BorderStyle = BorderStyle.FixedSingle
         txtProfileEmail.Font = New Font("Segoe UI", 9.0F)
         txtProfileEmail.ForeColor = Color.FromArgb(CByte(80), CByte(96), CByte(118))
-        txtProfileEmail.Location = New Point(12, 178)
+        txtProfileEmail.Location = New Point(12, 190)
         txtProfileEmail.Margin = New Padding(3, 2, 3, 2)
         txtProfileEmail.Name = "txtProfileEmail"
         txtProfileEmail.ReadOnly = True
         txtProfileEmail.Size = New Size(186, 23)
         txtProfileEmail.TabIndex = 7
-        ' 
+        '
         ' lblProfileBioHint
-        ' 
+        '
         lblProfileBioHint.AutoSize = True
         lblProfileBioHint.Font = New Font("Segoe UI", 7.0F, FontStyle.Bold)
         lblProfileBioHint.ForeColor = Color.FromArgb(CByte(110), CByte(126), CByte(152))
-        lblProfileBioHint.Location = New Point(12, 202)
+        lblProfileBioHint.Location = New Point(12, 214)
         lblProfileBioHint.Name = "lblProfileBioHint"
         lblProfileBioHint.Size = New Size(20, 12)
         lblProfileBioHint.TabIndex = 8
         lblProfileBioHint.Text = "Bio"
-        ' 
+        '
         ' txtProfileBio
-        ' 
+        '
         txtProfileBio.BackColor = Color.FromArgb(CByte(16), CByte(22), CByte(36))
         txtProfileBio.BorderStyle = BorderStyle.FixedSingle
         txtProfileBio.Font = New Font("Segoe UI", 9.0F)
         txtProfileBio.ForeColor = Color.Gainsboro
-        txtProfileBio.Location = New Point(12, 214)
+        txtProfileBio.Location = New Point(12, 226)
         txtProfileBio.Margin = New Padding(3, 2, 3, 2)
         txtProfileBio.Multiline = True
         txtProfileBio.Name = "txtProfileBio"
         txtProfileBio.ScrollBars = ScrollBars.Vertical
         txtProfileBio.Size = New Size(186, 40)
         txtProfileBio.TabIndex = 9
-        ' 
+        '
         ' btnSaveProfile
-        ' 
+        '
         btnSaveProfile.BackColor = Color.FromArgb(CByte(38), CByte(174), CByte(200))
         btnSaveProfile.Cursor = Cursors.Hand
         btnSaveProfile.FlatAppearance.BorderColor = Color.FromArgb(CByte(12), CByte(148), CByte(174))
@@ -309,7 +323,7 @@ Partial Class SocialHubPage
         btnSaveProfile.FlatStyle = FlatStyle.Flat
         btnSaveProfile.Font = New Font("Segoe UI Semibold", 9.0F, FontStyle.Bold)
         btnSaveProfile.ForeColor = Color.FromArgb(CByte(8), CByte(42), CByte(58))
-        btnSaveProfile.Location = New Point(12, 260)
+        btnSaveProfile.Location = New Point(12, 272)
         btnSaveProfile.Margin = New Padding(3, 2, 3, 2)
         btnSaveProfile.Name = "btnSaveProfile"
         btnSaveProfile.Size = New Size(186, 22)
@@ -323,7 +337,7 @@ Partial Class SocialHubPage
         lblProfileUserId.AutoEllipsis = True
         lblProfileUserId.Font = New Font("Segoe UI", 7.0F, FontStyle.Italic)
         lblProfileUserId.ForeColor = Color.FromArgb(CByte(45), CByte(58), CByte(80))
-        lblProfileUserId.Location = New Point(12, 436)
+        lblProfileUserId.Location = New Point(12, 430)
         lblProfileUserId.Name = "lblProfileUserId"
         lblProfileUserId.Size = New Size(186, 10)
         lblProfileUserId.TabIndex = 11
@@ -343,7 +357,7 @@ Partial Class SocialHubPage
         panelMiddle.Location = New Point(210, 40)
         panelMiddle.Margin = New Padding(3, 2, 3, 2)
         panelMiddle.Name = "panelMiddle"
-        panelMiddle.Padding = New Padding(4, 4, 4, 4)
+        panelMiddle.Padding = New Padding(4)
         panelMiddle.Size = New Size(175, 455)
         panelMiddle.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelMiddle.TabIndex = 4
@@ -398,7 +412,7 @@ Partial Class SocialHubPage
         pnlFollowingHeader.Location = New Point(0, 72)
         pnlFollowingHeader.Margin = New Padding(3, 2, 3, 2)
         pnlFollowingHeader.Name = "pnlFollowingHeader"
-        pnlFollowingHeader.Padding = New Padding(4, 4, 4, 4)
+        pnlFollowingHeader.Padding = New Padding(4)
         pnlFollowingHeader.Size = New Size(175, 20)
         pnlFollowingHeader.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         pnlFollowingHeader.TabIndex = 3
@@ -479,7 +493,7 @@ Partial Class SocialHubPage
         panelRight.Location = New Point(385, 40)
         panelRight.Margin = New Padding(3, 2, 3, 2)
         panelRight.Name = "panelRight"
-        panelRight.Padding = New Padding(4, 4, 4, 4)
+        panelRight.Padding = New Padding(4)
         panelRight.Size = New Size(438, 455)
         panelRight.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelRight.TabIndex = 5
@@ -494,7 +508,7 @@ Partial Class SocialHubPage
         panelChatHeader.Location = New Point(4, 4)
         panelChatHeader.Margin = New Padding(3, 2, 3, 2)
         panelChatHeader.Name = "panelChatHeader"
-        panelChatHeader.Padding = New Padding(4, 4, 4, 4)
+        panelChatHeader.Padding = New Padding(4)
         panelChatHeader.Size = New Size(430, 44)
         panelChatHeader.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelChatHeader.TabIndex = 0
@@ -530,7 +544,7 @@ Partial Class SocialHubPage
         panelChatArea.Location = New Point(0, 44)
         panelChatArea.Margin = New Padding(3, 2, 3, 2)
         panelChatArea.Name = "panelChatArea"
-        panelChatArea.Padding = New Padding(4, 4, 4, 4)
+        panelChatArea.Padding = New Padding(4)
         panelChatArea.Size = New Size(438, 368)
         panelChatArea.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelChatArea.TabIndex = 1
@@ -561,7 +575,7 @@ Partial Class SocialHubPage
         panelChatInput.Location = New Point(0, 412)
         panelChatInput.Margin = New Padding(3, 2, 3, 2)
         panelChatInput.Name = "panelChatInput"
-        panelChatInput.Padding = New Padding(4, 4, 4, 4)
+        panelChatInput.Padding = New Padding(4)
         panelChatInput.Size = New Size(438, 44)
         panelChatInput.SmoothingType = Drawing2D.SmoothingMode.HighQuality
         panelChatInput.TabIndex = 2
@@ -641,6 +655,7 @@ Partial Class SocialHubPage
     Friend WithEvents lblAvatarInitial As Label
     Friend WithEvents lblDisplayName As Label
     Friend WithEvents lblDisplayBio As Label
+    Friend WithEvents lblProfileStats As Label
     Friend WithEvents lblProfileUserId As Label
     Friend WithEvents lblSectionProfile As Label
     Friend WithEvents lblProfileUsernameHint As Label

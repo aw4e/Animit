@@ -361,8 +361,10 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
         End If
 
         Await PutNodeAsync($"social/follows/{sourceUserId}/{targetUser.UserId}", relationship)
+        Await PutNodeAsync($"social/followers/{targetUser.UserId}/{sourceUserId}", relationship)
         If relationship = "mutual" Then
             Await PutNodeAsync($"social/follows/{targetUser.UserId}/{sourceUserId}", "mutual")
+            Await PutNodeAsync($"social/followers/{sourceUserId}/{targetUser.UserId}", "mutual")
         End If
 
         Return New FirebaseFollowEntry With {
@@ -400,6 +402,69 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
         Return result.OrderBy(Function(f) f.Username).ToList()
     End Function
 
+    Public Async Function GetDmInboxSendersAsync(userId As String) As Task(Of List(Of FirebaseFollowEntry))
+        Dim result As New List(Of FirebaseFollowEntry)()
+        Dim targetUserId As String = If(userId, String.Empty).Trim()
+        If String.IsNullOrWhiteSpace(targetUserId) Then Return result
+
+        Dim inboxNode As JsonNode = Await GetNodeAsync($"social/dm_inbox/{targetUserId}")
+        Dim inboxObject As JsonObject = TryCast(inboxNode, JsonObject)
+        If inboxObject Is Nothing Then Return result
+
+        For Each senderEntry In inboxObject
+            Dim senderUserId As String = senderEntry.Key
+            Dim profile As FirebaseProfile = Await GetUserProfileAsync(senderUserId)
+            result.Add(New FirebaseFollowEntry With {
+                .UserId = senderUserId,
+                .Username = If(profile?.username, senderUserId),
+                .Relationship = "inbox"
+            })
+        Next
+
+        Return result.OrderBy(Function(f) f.Username).ToList()
+    End Function
+
+    Public Async Function GetFollowerCountAsync(userId As String) As Task(Of Integer)
+        Dim node As JsonNode = Await GetNodeAsync($"social/followers/{If(userId, String.Empty).Trim()}")
+        Dim obj As JsonObject = TryCast(node, JsonObject)
+        Return If(obj IsNot Nothing, obj.Count, 0)
+    End Function
+
+    Public Async Function GetFollowingCountAsync(userId As String) As Task(Of Integer)
+        Dim node As JsonNode = Await GetNodeAsync($"social/follows/{If(userId, String.Empty).Trim()}")
+        Dim obj As JsonObject = TryCast(node, JsonObject)
+        Return If(obj IsNot Nothing, obj.Count, 0)
+    End Function
+
+    Public Async Function IncrementWatchMinutesAsync(userId As String) As Task(Of Integer)
+        If String.IsNullOrWhiteSpace(userId) Then Return 0
+        Dim tracker As FirebaseLimitTracker = Await GetLimitTrackerAsync(userId)
+        If tracker Is Nothing Then Return 0
+
+        Dim todayStr As String = DateTime.UtcNow.ToString("yyyy-MM-dd")
+        Dim newWatched As Integer
+        If String.Equals(tracker.last_watch_date, todayStr, StringComparison.OrdinalIgnoreCase) Then
+            newWatched = tracker.minutes_watched_today + 1
+        Else
+            newWatched = 1
+        End If
+
+        Await PutNodeAsync($"users/{userId}/limit_tracker/minutes_watched_today", newWatched)
+        Await PutNodeAsync($"users/{userId}/limit_tracker/last_watch_date", todayStr)
+        Return newWatched
+    End Function
+
+    Public Async Function GetLimitTrackerAsync(userId As String) As Task(Of FirebaseLimitTracker)
+        If String.IsNullOrWhiteSpace(userId) Then Return Nothing
+        Dim node As JsonNode = Await GetNodeAsync($"users/{userId}/limit_tracker")
+        If node Is Nothing Then Return Nothing
+        Try
+            Return JsonSerializer.Deserialize(Of FirebaseLimitTracker)(node.ToJsonString(), _jsonOptions)
+        Catch ex As JsonException
+            Return Nothing
+        End Try
+    End Function
+
     Public Async Function SendDirectMessageByUsernameAsync(senderUserId As String, senderUsername As String, targetUsername As String, text As String) As Task(Of String)
         Dim sourceUserId As String = If(senderUserId, String.Empty).Trim()
         If String.IsNullOrWhiteSpace(sourceUserId) Then
@@ -417,6 +482,8 @@ Friend NotInheritable Class FirebaseRealtimeDbClient
 
         Dim roomId As String = BuildDirectRoomId(sourceUserId, targetUser.UserId)
         Await SendChatMessageAsync(roomId, senderUsername, text, sourceUserId)
+        ' Notifikasi inbox penerima agar pesan masuk terlihat meski belum mutual
+        Await PutNodeAsync($"social/dm_inbox/{targetUser.UserId}/{sourceUserId}", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
         Return roomId
     End Function
 

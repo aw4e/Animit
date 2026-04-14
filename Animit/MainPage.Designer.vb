@@ -30,6 +30,7 @@ Partial Class MainPage
         lnkNavMovies = New NightLinkLabel()
         lnkSocial = New NightLinkLabel()
         lnkLogout = New NightLinkLabel()
+        lblRemainingTime = New Label()
         pnlProfileAvatar = New Panel()
         lblProfileInitial = New Label()
         picMainAvatar = New PictureBox()
@@ -77,6 +78,7 @@ Partial Class MainPage
         flpWatchEpisodes = New FlowLayoutPanel()
         lblWatchHint = New NightLabel()
         tmrLiveChat = New Timer(components)
+        tmrWatchTime = New Timer(components)
         NightForm1.SuspendLayout()
         pnlProfileAvatar.SuspendLayout()
         CType(picMainAvatar, ComponentModel.ISupportInitialize).BeginInit()
@@ -105,6 +107,7 @@ Partial Class MainPage
         NightForm1.Controls.Add(lnkNavMovies)
         NightForm1.Controls.Add(lnkSocial)
         NightForm1.Controls.Add(lnkLogout)
+        NightForm1.Controls.Add(lblRemainingTime)
         NightForm1.Controls.Add(pnlProfileAvatar)
         NightForm1.Controls.Add(pnlSearchInput)
         NightForm1.Controls.Add(btnSearch)
@@ -232,7 +235,20 @@ Partial Class MainPage
         lnkLogout.TabStop = True
         lnkLogout.Text = "Logout"
         lnkLogout.VisitedLinkColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
-        ' 
+        '
+        ' lblRemainingTime
+        '
+        lblRemainingTime.AutoSize = False
+        lblRemainingTime.BackColor = Color.Transparent
+        lblRemainingTime.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold)
+        lblRemainingTime.ForeColor = Color.FromArgb(CByte(150), CByte(158), CByte(171))
+        lblRemainingTime.Location = New Point(622, 37)
+        lblRemainingTime.Name = "lblRemainingTime"
+        lblRemainingTime.Size = New Size(100, 19)
+        lblRemainingTime.Text = "⏱ --:--:--"
+        lblRemainingTime.TextAlign = ContentAlignment.MiddleLeft
+        lblRemainingTime.Visible = True
+        '
         ' pnlProfileAvatar
         ' 
         pnlProfileAvatar.BackColor = Color.FromArgb(CByte(44), CByte(186), CByte(210))
@@ -891,7 +907,11 @@ Partial Class MainPage
         ' tmrLiveChat
         ' 
         tmrLiveChat.Interval = 8000
-        ' 
+        '
+        ' tmrWatchTime
+        '
+        tmrWatchTime.Interval = 1000
+        '
         ' MainPage
         ' 
         ClientSize = New Size(1280, 720)
@@ -938,6 +958,7 @@ Partial Class MainPage
     Friend WithEvents lnkNavMovies As NightLinkLabel
     Friend WithEvents lnkSocial As NightLinkLabel
     Friend WithEvents lnkLogout As NightLinkLabel
+    Friend WithEvents lblRemainingTime As Label
     Friend WithEvents pnlProfileAvatar As Panel
     Friend WithEvents lblProfileInitial As Label
     Friend WithEvents picMainAvatar As PictureBox
@@ -985,4 +1006,5 @@ Partial Class MainPage
     Friend WithEvents flpWatchEpisodes As FlowLayoutPanel
     Friend WithEvents lblWatchHint As NightLabel
     Friend WithEvents tmrLiveChat As Timer
+    Friend WithEvents tmrWatchTime As Timer
 End Class
