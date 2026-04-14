@@ -18,11 +18,6 @@ Public Class SocialHubPage
     Private _tmrChatPoll As System.Windows.Forms.Timer
     Private _lastMsgTimestamp As Long = 0
 
-    ' Separator lines — created in code (thin panels, not worth Designer noise)
-    Private _sepLeftCard As Panel
-    Private _sepMidFollow As Panel
-    Private _sepChatTop As Panel
-    Private _sepChatBottom As Panel
 
     Private ReadOnly _selfColor As Color = Color.FromArgb(28, 76, 104)
     Private ReadOnly _otherColor As Color = Color.FromArgb(18, 26, 44)
@@ -34,7 +29,6 @@ Public Class SocialHubPage
     ' ═══════════════════════════════════════════
     Private Async Sub SocialHubPage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         NightForm1.Cursor = Cursors.Default
-        BuildSeparators()
         CenterAvatar()
         AdjustLayout()
 
@@ -62,45 +56,6 @@ Public Class SocialHubPage
         End Try
     End Sub
 
-    ' ── Build code-only controls (separators + stats label) ─
-    Private Sub BuildSeparators()
-        Dim sepColor As Color = Color.FromArgb(32, 44, 66)
-
-        ' Separator: just above the "EDIT PROFIL" section header
-        _sepLeftCard = New Panel With {
-            .BackColor = sepColor,
-            .Location = New Point(0, lblSectionProfile.Top - 2),
-            .Size = New Size(panelLeft.Width, 1),
-            .TabStop = False
-        }
-        panelLeft.Controls.Add(_sepLeftCard)
-
-        ' Separator: just above the following header strip
-        _sepMidFollow = New Panel With {
-            .BackColor = Color.FromArgb(26, 36, 56),
-            .Location = New Point(0, pnlFollowingHeader.Top - 1),
-            .Size = New Size(panelMiddle.Width, 1),
-            .TabStop = False
-        }
-        panelMiddle.Controls.Add(_sepMidFollow)
-
-        ' Separator: just below the chat header (Dock=Top) + panel padding
-        _sepChatTop = New Panel With {
-            .BackColor = Color.FromArgb(26, 36, 58),
-            .Location = New Point(0, panelChatHeader.Height + 4),
-            .Size = New Size(panelRight.Width, 1),
-            .TabStop = False
-        }
-        panelRight.Controls.Add(_sepChatTop)
-
-        _sepChatBottom = New Panel With {
-            .BackColor = Color.FromArgb(26, 36, 58),
-            .Location = New Point(0, panelRight.Height - 62),
-            .Size = New Size(panelRight.Width, 1),
-            .TabStop = False
-        }
-        panelRight.Controls.Add(_sepChatBottom)
-    End Sub
 
     Private Sub CenterAvatar()
         If panelLeft Is Nothing Then Return
@@ -144,14 +99,6 @@ Public Class SocialHubPage
         ' Chat messages
         panelChatArea.Size = New Size(panelRight.Width, h - 122)
 
-        ' Resize separator lines
-        If _sepLeftCard IsNot Nothing Then _sepLeftCard.Width = panelLeft.Width
-        If _sepMidFollow IsNot Nothing Then _sepMidFollow.Width = panelMiddle.Width
-        If _sepChatTop IsNot Nothing Then _sepChatTop.Width = panelRight.Width
-        If _sepChatBottom IsNot Nothing Then
-            _sepChatBottom.Width = panelRight.Width
-            _sepChatBottom.Top = inputTop - 1
-        End If
     End Sub
 
     ' ═══════════════════════════════════════════

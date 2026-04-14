@@ -49,7 +49,7 @@ Public Class LoginPage
         Return False
     End Function
 
-    ' --- Drag ---
+    ' Drag
     Private Sub Drag_MouseDown(sender As Object, e As MouseEventArgs) Handles NightForm1.MouseDown, lblBrand.MouseDown, lblBadge.MouseDown, lblWelcome.MouseDown, lblSubtitle.MouseDown
         _dragger.StartDrag(Me, NightForm1, e)
     End Sub
@@ -62,7 +62,7 @@ Public Class LoginPage
         _dragger.StopDrag(NightForm1)
     End Sub
 
-    ' --- Actions ---
+    ' Actions
     Private Async Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
         Dim credential As String = txtEmail.Text.Trim()
         Dim password As String = txtPass.Text
