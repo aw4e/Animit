@@ -38,6 +38,9 @@ Partial Class SocialHubPage
         txtProfileEmail = New TextBox()
         lblProfileBioHint = New Label()
         txtProfileBio = New TextBox()
+        lblProfileAvatarUrlHint = New Label()
+        txtProfileAvatarUrl = New TextBox()
+        btnBrowseAvatar = New StableActionButton()
         btnSaveProfile = New StableActionButton()
         lblProfileUserId = New Label()
         panelMiddle = New Panel()
@@ -146,6 +149,9 @@ Partial Class SocialHubPage
         panelLeft.Controls.Add(txtProfileEmail)
         panelLeft.Controls.Add(lblProfileBioHint)
         panelLeft.Controls.Add(txtProfileBio)
+        panelLeft.Controls.Add(lblProfileAvatarUrlHint)
+        panelLeft.Controls.Add(txtProfileAvatarUrl)
+        panelLeft.Controls.Add(btnBrowseAvatar)
         panelLeft.Controls.Add(btnSaveProfile)
         panelLeft.Controls.Add(lblProfileUserId)
         panelLeft.EdgeColor = Color.FromArgb(CByte(32), CByte(41), CByte(50))
@@ -313,6 +319,48 @@ Partial Class SocialHubPage
         txtProfileBio.Size = New Size(186, 40)
         txtProfileBio.TabIndex = 9
         '
+        ' lblProfileAvatarUrlHint
+        '
+        lblProfileAvatarUrlHint.AutoSize = True
+        lblProfileAvatarUrlHint.Font = New Font("Segoe UI", 7.0F, FontStyle.Bold)
+        lblProfileAvatarUrlHint.ForeColor = Color.FromArgb(CByte(110), CByte(126), CByte(152))
+        lblProfileAvatarUrlHint.Location = New Point(12, 272)
+        lblProfileAvatarUrlHint.Name = "lblProfileAvatarUrlHint"
+        lblProfileAvatarUrlHint.Size = New Size(60, 12)
+        lblProfileAvatarUrlHint.TabIndex = 13
+        lblProfileAvatarUrlHint.Text = "Avatar URL"
+        '
+        ' txtProfileAvatarUrl
+        '
+        txtProfileAvatarUrl.BackColor = Color.FromArgb(CByte(16), CByte(22), CByte(36))
+        txtProfileAvatarUrl.BorderStyle = BorderStyle.FixedSingle
+        txtProfileAvatarUrl.Font = New Font("Segoe UI", 8.0F)
+        txtProfileAvatarUrl.ForeColor = Color.Gainsboro
+        txtProfileAvatarUrl.Location = New Point(12, 284)
+        txtProfileAvatarUrl.Margin = New Padding(3, 2, 3, 2)
+        txtProfileAvatarUrl.Name = "txtProfileAvatarUrl"
+        txtProfileAvatarUrl.PlaceholderText = "URL atau pilih file..."
+        txtProfileAvatarUrl.Size = New Size(148, 22)
+        txtProfileAvatarUrl.TabIndex = 14
+        '
+        ' btnBrowseAvatar
+        '
+        btnBrowseAvatar.BackColor = Color.FromArgb(CByte(24), CByte(36), CByte(56))
+        btnBrowseAvatar.Cursor = Cursors.Hand
+        btnBrowseAvatar.FlatAppearance.BorderColor = Color.FromArgb(CByte(38), CByte(52), CByte(72))
+        btnBrowseAvatar.FlatAppearance.MouseDownBackColor = Color.FromArgb(CByte(30), CByte(44), CByte(64))
+        btnBrowseAvatar.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(34), CByte(50), CByte(70))
+        btnBrowseAvatar.FlatStyle = FlatStyle.Flat
+        btnBrowseAvatar.Font = New Font("Segoe UI Semibold", 7.5F, FontStyle.Bold)
+        btnBrowseAvatar.ForeColor = Color.FromArgb(CByte(120), CByte(160), CByte(200))
+        btnBrowseAvatar.Location = New Point(162, 284)
+        btnBrowseAvatar.Margin = New Padding(3, 2, 3, 2)
+        btnBrowseAvatar.Name = "btnBrowseAvatar"
+        btnBrowseAvatar.Size = New Size(36, 22)
+        btnBrowseAvatar.TabIndex = 16
+        btnBrowseAvatar.Text = "..."
+        btnBrowseAvatar.UseVisualStyleBackColor = False
+        '
         ' btnSaveProfile
         '
         btnSaveProfile.BackColor = Color.FromArgb(CByte(38), CByte(174), CByte(200))
@@ -323,11 +371,11 @@ Partial Class SocialHubPage
         btnSaveProfile.FlatStyle = FlatStyle.Flat
         btnSaveProfile.Font = New Font("Segoe UI Semibold", 9.0F, FontStyle.Bold)
         btnSaveProfile.ForeColor = Color.FromArgb(CByte(8), CByte(42), CByte(58))
-        btnSaveProfile.Location = New Point(12, 272)
+        btnSaveProfile.Location = New Point(12, 310)
         btnSaveProfile.Margin = New Padding(3, 2, 3, 2)
         btnSaveProfile.Name = "btnSaveProfile"
         btnSaveProfile.Size = New Size(186, 22)
-        btnSaveProfile.TabIndex = 10
+        btnSaveProfile.TabIndex = 15
         btnSaveProfile.Text = "Simpan Profil"
         btnSaveProfile.UseVisualStyleBackColor = False
         ' 
@@ -663,6 +711,9 @@ Partial Class SocialHubPage
     Friend WithEvents txtProfileEmail As TextBox
     Friend WithEvents lblProfileBioHint As Label
     Friend WithEvents txtProfileBio As TextBox
+    Friend WithEvents lblProfileAvatarUrlHint As Label
+    Friend WithEvents txtProfileAvatarUrl As TextBox
+    Friend WithEvents btnBrowseAvatar As StableActionButton
     Friend WithEvents btnSaveProfile As StableActionButton
 
     Friend WithEvents panelMiddle As Panel

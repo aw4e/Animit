@@ -1,4 +1,5 @@
 Imports System.ComponentModel
+Imports System.IO
 Imports System.Net.Http
 
 Public Class SocialHubPage
@@ -144,19 +145,21 @@ Public Class SocialHubPage
         Dim uname As String = If(profile?.username, CurrentUsername)
         Dim email As String = If(profile?.email, CurrentUserEmail)
         Dim bio As String = If(profile?.bio, String.Empty)
+        Dim avatarUrl As String = If(profile?.avatar_url, String.Empty)
         If String.IsNullOrWhiteSpace(uname) Then uname = CurrentUsername
         If String.IsNullOrWhiteSpace(email) Then email = CurrentUserEmail
 
         txtProfileUsername.Text = uname
         txtProfileEmail.Text = email
         txtProfileBio.Text = bio
+        txtProfileAvatarUrl.Text = avatarUrl
 
         lblDisplayName.Text = If(String.IsNullOrWhiteSpace(uname), "—", $"@{uname}")
         lblDisplayBio.Text = If(String.IsNullOrWhiteSpace(bio), "No bio yet.", bio)
         lblAvatarInitial.Text = If(String.IsNullOrWhiteSpace(uname), "?", uname.Substring(0, 1).ToUpperInvariant())
         lblProfileUserId.Text = $"uid: {CurrentUserId}"
 
-        Await LoadAvatarAsync(profile?.avatar_url)
+        Await LoadAvatarAsync(avatarUrl)
         Await LoadProfileStatsAsync()
     End Function
 
@@ -176,10 +179,33 @@ Public Class SocialHubPage
             SetAvatarImage(CreateNoImageBitmap())
             Return
         End If
+
+        ' Base64 data URI
+        If avatarUrl.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase) Then
+            Try
+                Dim commaIdx As Integer = avatarUrl.IndexOf(","c)
+                If commaIdx < 0 Then
+                    SetAvatarImage(CreateNoImageBitmap())
+                    Return
+                End If
+                Dim base64Data As String = avatarUrl.Substring(commaIdx + 1)
+                Dim imgBytes As Byte() = Convert.FromBase64String(base64Data)
+                Using ms As New MemoryStream(imgBytes)
+                    Using loaded As Image = Image.FromStream(ms)
+                        SetAvatarImage(New Bitmap(loaded))
+                    End Using
+                End Using
+            Catch
+                SetAvatarImage(CreateNoImageBitmap())
+            End Try
+            Return
+        End If
+
+        ' Regular URL
         Try
             Dim imgBytes As Byte() = Await _httpAvatar.GetByteArrayAsync(avatarUrl)
             Dim bmp As Bitmap
-            Using ms As New System.IO.MemoryStream(imgBytes)
+            Using ms As New MemoryStream(imgBytes)
                 Using loaded As Image = Image.FromStream(ms)
                     bmp = New Bitmap(loaded)
                 End Using
@@ -211,9 +237,44 @@ Public Class SocialHubPage
         Return bmp
     End Function
 
+    Private Sub btnBrowseAvatar_Click(sender As Object, e As EventArgs) Handles btnBrowseAvatar.Click
+        Using ofd As New OpenFileDialog()
+            ofd.Title = "Pilih gambar avatar"
+            ofd.Filter = "Gambar|*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.webp"
+            ofd.FilterIndex = 1
+            If ofd.ShowDialog() <> DialogResult.OK Then Return
+
+            Try
+                Dim img As Image = Image.FromFile(ofd.FileName)
+                ' Resize agar tidak terlalu besar (max 200x200)
+                Dim resized As New Bitmap(200, 200)
+                Using g As Graphics = Graphics.FromImage(resized)
+                    g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+                    g.DrawImage(img, 0, 0, 200, 200)
+                End Using
+                img.Dispose()
+
+                ' Convert ke base64
+                Using ms As New MemoryStream()
+                    resized.Save(ms, Imaging.ImageFormat.Png)
+                    Dim base64 As String = "data:image/png;base64," & Convert.ToBase64String(ms.ToArray())
+                    txtProfileAvatarUrl.Text = base64
+                End Using
+                resized.Dispose()
+
+                ' Preview langsung
+                Dim previewBmp As New Bitmap(Image.FromFile(ofd.FileName))
+                SetAvatarImage(previewBmp)
+            Catch ex As Exception
+                ShowStatus($"Gagal baca gambar: {ex.Message}", True)
+            End Try
+        End Using
+    End Sub
+
     Private Async Sub btnSaveProfile_Click(sender As Object, e As EventArgs) Handles btnSaveProfile.Click
         Dim username As String = txtProfileUsername.Text.Trim()
         Dim bio As String = txtProfileBio.Text.Trim()
+        Dim avatarUrl As String = txtProfileAvatarUrl.Text.Trim()
         If String.IsNullOrWhiteSpace(username) Then
             ShowStatus("Username tidak boleh kosong.", True)
             Return
@@ -222,11 +283,13 @@ Public Class SocialHubPage
         btnSaveProfile.Text = "Menyimpan..."
         Try
             Await _firebase.UpdateUserProfileAsync(CurrentUserId, username, bio)
+            Await _firebase.UpdateUserAvatarAsync(CurrentUserId, avatarUrl)
             CurrentUsername = username
             UpdatedUsername = username
             lblDisplayName.Text = $"@{username}"
             lblDisplayBio.Text = If(String.IsNullOrWhiteSpace(bio), "No bio yet.", bio)
             lblAvatarInitial.Text = username.Substring(0, 1).ToUpperInvariant()
+            Await LoadAvatarAsync(avatarUrl)
             ShowStatus("Profil disimpan.", False)
         Catch ex As Exception
             ShowStatus($"Gagal simpan: {ex.Message}", True)
